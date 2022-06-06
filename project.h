@@ -12,7 +12,9 @@
 
 /* - public variables ------------------------------------------------------- */
 extern volatile uint8_t global_events;
-#define fEV_WAKEUP  _BV(0)
+#define EV_WAKEUP  _BV(0)
+
+#define SEND_EVENT(ev)   global_events |= ev
 
 /* - functions -------------------------------------------------------------- */
 

@@ -40,7 +40,7 @@
 #----------------------------------------------------------------------------
 
 # Target file name (without extension).
-TARGET = lincam
+TARGET = pwmgen
 
 # MCU name
 MCU = atmega328p # arduino nano atmega328p
@@ -57,10 +57,10 @@ MCU = atmega328p # arduino nano atmega328p
 #         F_CPU =  3686400
 #         F_CPU =  4000000
 #         F_CPU =  7372800
-#         F_CPU =  8000000
+         F_CPU =  8000000
 #         F_CPU = 11059200
 #         F_CPU = 14745600
-F_CPU = 16000000
+#         F_CPU = 16000000
 #         F_CPU = 18432000
 #         F_CPU = 20000000
 #         F_CPU = 8000000
@@ -85,7 +85,7 @@ FORMAT = ihex
 OBJDIR = obj
 
 # List C source files here. (C dependencies are automatically generated.)
-SRC = main.c uart.c
+SRC = main.c mcusleep.c buttons.c
 
 # List C++ source files here. (C dependencies are automatically generated.)
 CPPSRC =
