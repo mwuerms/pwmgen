@@ -31,7 +31,11 @@ void sleep_mode_init(void) {
 }
 
 void enter_sleep_mode(void) {
-    
+    // stay in active mode
+    sei();
+    while(global_events == 0);
+}
+#if 0
     if(sleep_mode_ctrl.active) {
         // stay in active mode
         sei();
@@ -51,7 +55,7 @@ void enter_sleep_mode(void) {
         // enter STANDBY mode
     }
 }
-
+#endif
 void use_sleep_mode(enum sleep_modes mode) {
     switch(mode) {
         case ACTIVE:

@@ -14,6 +14,7 @@
 
 #include "project.h"
 #include "mcusleep.h"
+#include "pwm.h"
 #include "buttons.h"
 #include "uart.h"
 
@@ -31,6 +32,9 @@ int main(void) {
     // init
     sleep_mode_init();
     use_sleep_mode(ACTIVE);
+
+    pwm_init();
+    pwm_start(1000, 500);
     
     // event loop
     while(1) {

@@ -85,7 +85,7 @@ FORMAT = ihex
 OBJDIR = obj
 
 # List C source files here. (C dependencies are automatically generated.)
-SRC = main.c mcusleep.c buttons.c
+SRC = main.c mcusleep.c pwm.c buttons.c
 
 # List C++ source files here. (C dependencies are automatically generated.)
 CPPSRC =
@@ -266,11 +266,12 @@ LDFLAGS += $(PRINTF_LIB) $(SCANF_LIB) $(MATH_LIB)
 # Type: avrdude -c ?
 # to get a full listing.
 #
-#AVRDUDE_PROGRAMMER = jtag2isp -B 10
-AVRDUDE_PROGRAMMER = arduino
+AVRDUDE_PROGRAMMER = jtag2isp -B 10
+#AVRDUDE_PROGRAMMER = arduino
 
 # com1 = serial port. Use lpt1 to connect to parallel port.
-AVRDUDE_PORT = /dev/ttyUSB0 -b 57600
+#AVRDUDE_PORT = /dev/ttyUSB0 -b 57600
+AVRDUDE_PORT = usb
 
 AVRDUDE_WRITE_FLASH = -U flash:w:$(TARGET).hex
 #AVRDUDE_WRITE_EEPROM = -U eeprom:w:$(TARGET).eep
