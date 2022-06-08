@@ -85,7 +85,7 @@ FORMAT = ihex
 OBJDIR = obj
 
 # List C source files here. (C dependencies are automatically generated.)
-SRC = main.c mcusleep.c pwm.c buttons.c uart.c
+SRC = main.c mcusleep.c pwm.c buttons.c disp.c ssd1306.c font.c twi.c
 
 # List C++ source files here. (C dependencies are automatically generated.)
 CPPSRC =

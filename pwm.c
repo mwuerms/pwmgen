@@ -55,17 +55,19 @@ void pwm_init(void) {
 void pwm_start(uint16_t set_freq, uint16_t set_pulse_witdh) {
     uint32_t calc_timer_regs;
     uint16_t prescaler = 1;
-    uint8_t cs_value;
+    uint8_t cs_value  = _BV(CS12);
     // TOP = f_{clkI/O}(N*f_{pwm}-1
     // check set_pulse_witdh
     if((set_pulse_witdh == 0) || (set_pulse_witdh >= PWM_MAX_PULSE_WIDTH)){
         // error, out of range, do not start pwm
         pwm_stop();
+        return;
     }
     // get prescaler N from range
     if(set_freq > PWM_MAX_FREQUENCY) {
         // error, out of range, do not start pwm
         pwm_stop();
+        return;
     }
     else if(set_freq >= 250) {  // 16 MHz: 250/ 8 MHz: 130
         prescaler = 1;
@@ -98,7 +100,7 @@ void pwm_start(uint16_t set_freq, uint16_t set_pulse_witdh) {
     TCCR1B = _BV(WGM13) | _BV(WGM12) | cs_value;
 }
 
-// mode = up / down / up-down
+// mode = 0: up / 1: down / 2: up-down
 void pwm_start_sweep_pulse_width(uint16_t set_freq, uint16_t set_pulse_witdh, uint16_t sweep_start, uint16_t sweep_stop, uint16_t sweep_step, uint8_t mode) {
     return;
 }

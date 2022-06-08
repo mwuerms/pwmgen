@@ -16,7 +16,7 @@
 #include "mcusleep.h"
 #include "pwm.h"
 #include "buttons.h"
-#include "uart.h"
+#include "disp.h"
 
 /* - defines ---------------------------------------------------------------- */
 
@@ -33,8 +33,7 @@ int main(void) {
     sleep_mode_init();
     use_sleep_mode(ACTIVE);
 
-    uart_Init(UBRR_VAL_115200);
-    uart_puts("hello?\n");
+    disp_init();
 
     pwm_init();
     pwm_start(250, 320);

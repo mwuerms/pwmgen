@@ -25,6 +25,28 @@ static struct {
     uint8_t standby;
 } sleep_mode_ctrl;
 
+/**
+ * enter the given sleep mode, see avr/sleep.h
+ * @param   mode    sleep modes:
+ * translate: own defines to arv/sleep.h:
+ * cSLEEP_MODE_... | SLEEP_MODE_...
+ * cSLEEP_MODE_ACTIVE | none, do not enter this function
+ * cSLEEP_MODE_IDLE | SLEEP_MODE_IDLE
+ *  none | SLEEP_MODE_ADC
+ * cSLEEP_MODE_POWER_DOWN | SLEEP_MODE_PWR_DOWN
+ *  none | SLEEP_MODE_PWR_SAVE
+ *  none | SLEEP_MODE_STANDBY
+ *  none | SLEEP_MODE_EXT_STANDBY
+ */
+static void _EnterSleepMode(uint8_t mode) {
+    set_sleep_mode(mode);
+    sleep_enable();
+    sei();
+    sleep_cpu();    // enter sleep mode, wait here
+    sleep_disable();
+    cli();
+}
+//_EnterSleepMode(SLEEP_MODE_PWR_DOWN);
 // - public functions ----------------------------------------------------------
 void sleep_mode_init(void) {
     memset(&sleep_mode_ctrl, 0, sizeof(sleep_mode_ctrl));
