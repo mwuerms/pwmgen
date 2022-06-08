@@ -17,7 +17,7 @@
 //PCINT8, 9, 10, 11
 ISR(PCINT1_vect) {
   cli();
-  if( (PINC & (1 << BV_BUTTON_ON_OFF)) == 1 ) {
+  if( (PINC & (1 << PIN_BUTTON_ON_OFF)) == 1 ) {
 
   }
   else

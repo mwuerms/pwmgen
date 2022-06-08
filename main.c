@@ -33,8 +33,12 @@ int main(void) {
     sleep_mode_init();
     use_sleep_mode(ACTIVE);
 
+    uart_Init(UBRR_VAL_115200);
+    uart_puts("hello?\n");
+
     pwm_init();
-    pwm_start(1000, 500);
+    pwm_start(250, 320);
+    sei();
     
     // event loop
     while(1) {

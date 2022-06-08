@@ -10,6 +10,10 @@
 /* - includes --------------------------------------------------------------- */
 #include <stdint.h>
 
+// - public definitions --------------------------------------------------------
+#define RET_OK  (0)
+#define RET_ERR (1)
+
 /* - public variables ------------------------------------------------------- */
 extern volatile uint8_t global_events;
 #define EV_WAKEUP  _BV(0)

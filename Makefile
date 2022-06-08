@@ -57,10 +57,10 @@ MCU = atmega328p # arduino nano atmega328p
 #         F_CPU =  3686400
 #         F_CPU =  4000000
 #         F_CPU =  7372800
-         F_CPU =  8000000
+#         F_CPU =  8000000
 #         F_CPU = 11059200
 #         F_CPU = 14745600
-#         F_CPU = 16000000
+         F_CPU = 16000000
 #         F_CPU = 18432000
 #         F_CPU = 20000000
 #         F_CPU = 8000000
@@ -85,7 +85,7 @@ FORMAT = ihex
 OBJDIR = obj
 
 # List C source files here. (C dependencies are automatically generated.)
-SRC = main.c mcusleep.c pwm.c buttons.c
+SRC = main.c mcusleep.c pwm.c buttons.c uart.c
 
 # List C++ source files here. (C dependencies are automatically generated.)
 CPPSRC =
@@ -266,12 +266,12 @@ LDFLAGS += $(PRINTF_LIB) $(SCANF_LIB) $(MATH_LIB)
 # Type: avrdude -c ?
 # to get a full listing.
 #
-AVRDUDE_PROGRAMMER = jtag2isp -B 10
-#AVRDUDE_PROGRAMMER = arduino
+#AVRDUDE_PROGRAMMER = jtag2isp -B 10
+AVRDUDE_PROGRAMMER = arduino
 
 # com1 = serial port. Use lpt1 to connect to parallel port.
-#AVRDUDE_PORT = /dev/ttyUSB0 -b 57600
-AVRDUDE_PORT = usb
+AVRDUDE_PORT = /dev/ttyUSB0 -b 57600
+#AVRDUDE_PORT = usb
 
 AVRDUDE_WRITE_FLASH = -U flash:w:$(TARGET).hex
 #AVRDUDE_WRITE_EEPROM = -U eeprom:w:$(TARGET).eep

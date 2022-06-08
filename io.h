@@ -10,29 +10,29 @@
 /* - includes --------------------------------------------------------------- */
 
 // OLED I2C, PORTC
-#define BV_OLED_SDA         _BV(4)
-#define BV_OLED_SCL         _BV(5)
+#define PIN_OLED_SDA         (4)
+#define PIN_OLED_SCL         (5)
 
 // Buttons, rotary encoder PORTC
-#define BV_BUTTON_ON_OFF    _BV(0)  // PCINT8,  on/off button
-#define BV_BUTTON_WHEEL     _BV(1)  // PCINT9,  button of rotary encoder
-#define BV_WHEEL_A          _BV(2)  // PCINT10, rotary encoder signal A
-#define BV_WHEEL_B          _BV(3)  // PCINT11, rotary encoder signal B
+#define PIN_BUTTON_ON_OFF    (0)  // PCINT8,  on/off button
+#define PIN_BUTTON_WHEEL     (1)  // PCINT9,  button of rotary encoder
+#define PIN_WHEEL_A          (2)  // PCINT10, rotary encoder signal A
+#define PIN_WHEEL_B          (3)  // PCINT11, rotary encoder signal B
 
 // PWM, F_CPU out, PORTB
-#define BV_CLKO             _BV(0)   // F_CPU/1 output
-#define BV_OC1A             _BV(1)   // variable pwm signal, (on/off)
-#define BV_OC1B             _BV(2)   // variable pwm signal, (on/off)
+#define PIN_CLKO             (0)   // F_CPU/1 output
+#define PIN_OC1A             (1)   // variable pwm signal, (on/off)
+#define PIN_OC1B             (2)   // variable pwm signal, (on/off)
 
 // fixed PWM, PORTD
-#define BV_OC0A             _BV(6)   // fixed 1 MHz 50% pwm signal, also (on/off)
+#define PIN_OC0A             (6)   // fixed 1 MHz 50% pwm signal, also (on/off)
 
 // UART PORTD
-#define BV_RXD              _BV(0)
-#define BV_TXD              _BV(1)
+#define PIN_RXD              (0)
+#define PIN_TXD              (1)
 
 // XTAL, PORTB
-#define BV_XTAL1            _BV(6)
-#define BV_XTAL2            _BV(7)
+#define PIN_XTAL1            (6)
+#define PIN_XTAL2            (7)
 
 #endif /* _IO_H_ */
