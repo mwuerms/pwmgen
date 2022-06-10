@@ -68,7 +68,7 @@ MCU = atmega328p # arduino nano atmega328p
 
 # Versionfile
 VERSION_FILE = version.h
-VERSION_STRING_NAME = cVERSION
+VERSION_STRING_NAME = GIT_VERSION
 STORED_VERSION_STRING = $(subst ",,$(shell [ ! -r $(VERSION_FILE) ] || \
                                                 read ignore ignore v <$(VERSION_FILE) && echo $$v))                                                              
 VERSION_STRING := $(shell git describe --dirty --always || echo $(VERSION))
@@ -85,7 +85,7 @@ FORMAT = ihex
 OBJDIR = obj
 
 # List C source files here. (C dependencies are automatically generated.)
-SRC = main.c mcusleep.c pwm.c buttons.c disp.c ssd1306.c font.c twi.c
+SRC = main.c mcusleep.c wdt.c pwm.c buttons.c disp.c disp_draw.c ssd1306.c font.c twi.c
 
 # List C++ source files here. (C dependencies are automatically generated.)
 CPPSRC =

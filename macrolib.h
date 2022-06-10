@@ -7,10 +7,13 @@
 #ifndef _MACROS_H_
 #define _MACROS_H_
 /* - includes --------------------------------------------------------------- */
-
 #include <stdint.h>
 
 // - public MACROS -------------------------------------------------------------
+#ifndef _BV(bit)
+#define _BV(bit) (1 << (bit))
+#endif
+
 #define INC_VAR_MAX(var, max)   do { \
                                     if(var < max) { \
                                         var++; \

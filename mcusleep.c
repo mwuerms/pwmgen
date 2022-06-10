@@ -38,6 +38,7 @@ static struct {
  *  none | SLEEP_MODE_STANDBY
  *  none | SLEEP_MODE_EXT_STANDBY
  */
+/*
 static void _EnterSleepMode(uint8_t mode) {
     set_sleep_mode(mode);
     sleep_enable();
@@ -45,7 +46,7 @@ static void _EnterSleepMode(uint8_t mode) {
     sleep_cpu();    // enter sleep mode, wait here
     sleep_disable();
     cli();
-}
+}*/
 //_EnterSleepMode(SLEEP_MODE_PWR_DOWN);
 // - public functions ----------------------------------------------------------
 void sleep_mode_init(void) {

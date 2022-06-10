@@ -155,6 +155,7 @@ const uint8_t INIT_SSD1306[] PROGMEM = {
 
 // @var array Chache memory Lcd 8 * 128 = 1024
 static char cacheMemLcd[CACHE_SIZE_MEM];
+unsigned int _counter;
 
 /**
  * @desc    SSD1306 Init
@@ -529,14 +530,15 @@ void SSD1306_DrawString (char *str)
 }
 
 /**
- * @desc    Draw pixel
+ * @desc    Draw pixel -> Manipulate pixel
  *
  * @param   uint8_t x -> 0 ... MAX_X
  * @param   uint8_t y -> 0 ... MAX_Y
+ * @param   uint8_t pixel_value PIXEL_SET: set this pixel, PIXEL_CLEAR: clear this pixel
  *
  * @return  uint8_t
  */
-uint8_t SSD1306_DrawPixel (uint8_t x, uint8_t y)
+uint8_t SSD1306_ManipulatePixel (uint8_t x, uint8_t y, uint8_t pixel_value)
 {
   uint8_t page = 0;
   uint8_t pixel = 0;
@@ -553,7 +555,10 @@ uint8_t SSD1306_DrawPixel (uint8_t x, uint8_t y)
   // update counter
   _counter = x + (page << 7);
   // save pixel
-  cacheMemLcd[_counter++] |= pixel;
+  if(pixel_value == PIXEL_CLEAR)
+    cacheMemLcd[_counter++] &= ~pixel;
+  else
+    cacheMemLcd[_counter++] |=  pixel;
 
   // success
   return SSD1306_SUCCESS;
@@ -569,7 +574,7 @@ uint8_t SSD1306_DrawPixel (uint8_t x, uint8_t y)
  *
  * @return  uint8_t
  */
-uint8_t SSD1306_DrawLine (uint8_t x1, uint8_t x2, uint8_t y1, uint8_t y2)
+uint8_t SSD1306_ManipulateLine (uint8_t x1, uint8_t x2, uint8_t y1, uint8_t y2, uint8_t pixel_value)
 {
   // determinant
   int16_t D;
@@ -604,7 +609,8 @@ uint8_t SSD1306_DrawLine (uint8_t x1, uint8_t x2, uint8_t y1, uint8_t y2)
     // calculate determinant
     D = (delta_y << 1) - delta_x;
     // draw first pixel
-    SSD1306_DrawPixel (x1, y1);
+    //SSD1306_DrawPixel (x1, y1);
+      SSD1306_ManipulatePixel(x1, y1, pixel_value);
     // check if x1 equal x2
     while (x1 != x2) {
       // update x1
@@ -619,14 +625,16 @@ uint8_t SSD1306_DrawLine (uint8_t x1, uint8_t x2, uint8_t y1, uint8_t y2)
       // update deteminant
       D += 2*delta_y;
       // draw next pixel
-      SSD1306_DrawPixel (x1, y1);
+      //SSD1306_DrawPixel (x1, y1);
+      SSD1306_ManipulatePixel(x1, y1, pixel_value);
     }
   // for m > 1 (dy > dx)    
   } else {
     // calculate determinant
     D = delta_y - (delta_x << 1);
     // draw first pixel
-    SSD1306_DrawPixel (x1, y1);
+    //SSD1306_DrawPixel (x1, y1);
+      SSD1306_ManipulatePixel(x1, y1, pixel_value);
     // check if y2 equal y1
     while (y1 != y2) {
       // update y1
@@ -641,7 +649,36 @@ uint8_t SSD1306_DrawLine (uint8_t x1, uint8_t x2, uint8_t y1, uint8_t y2)
       // update deteminant
       D -= 2*delta_x;
       // draw next pixel
-      SSD1306_DrawPixel (x1, y1);
+      //SSD1306_DrawPixel (x1, y1);
+      SSD1306_ManipulatePixel(x1, y1, pixel_value);
+    }
+  }
+  // success return
+  return SSD1306_SUCCESS;
+}
+
+uint8_t SSD1306_ClearArea (uint8_t x1, uint8_t x2, uint8_t y1, uint8_t y2) {
+  uint8_t x0, y0, step_x, step_y;
+  if(x1 < x2) {
+    x0 = x1;
+    x2 = x2;
+  }
+  else {
+    x0 = x2;
+    x2 = x1;
+  }
+  if(y1 < y2) {
+    y0 = y1;
+    y2 = y2;
+  }
+  else {
+    y0 = y2;
+    y2 = y1;
+  }
+
+  for(step_x = x0; step_x < x2; step_x++) {
+    for(step_y = y0; step_y < y2; step_y++) {
+      SSD1306_ClearPixel(step_x, step_y);
     }
   }
   // success return

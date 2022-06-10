@@ -86,9 +86,9 @@
 
   #define MAX_X                     END_COLUMN_ADDR
   #define MAX_Y                     (END_PAGE_ADDR+1)*8
-
+  #define ROW_TO_Y(row)             (row*8)
   // @var set area
-  unsigned int _counter;
+  extern unsigned int _counter;
 
   /**
    * @desc    SSD1306 Init
@@ -198,7 +198,11 @@
    *
    * @return  uint8_t
    */
-  uint8_t SSD1306_DrawPixel (uint8_t, uint8_t);
+  #define PIXEL_SET     (1)
+  #define PIXEL_CLEAR   (0)
+  uint8_t SSD1306_ManipulatePixel (uint8_t x, uint8_t y, uint8_t pixel_value);
+  #define SSD1306_DrawPixel(x, y)      SSD1306_ManipulatePixel(x, y, PIXEL_SET)
+  #define SSD1306_ClearPixel(x, y)     SSD1306_ManipulatePixel(x, y, PIXEL_CLEAR)
 
   /**
    * @desc    Draw line
@@ -210,6 +214,9 @@
    *
    * @return  uint8_t
    */
-  uint8_t SSD1306_DrawLine (uint8_t, uint8_t, uint8_t, uint8_t);
+  uint8_t SSD1306_ManipulateLine (uint8_t, uint8_t, uint8_t, uint8_t, uint8_t);
+  #define SSD1306_DrawLine(x1, x2, y1, y2)      SSD1306_ManipulateLine(x1, x2, y1, y2, PIXEL_SET)
+  #define SSD1306_ClearLine(x1, x2, y1, y2)     SSD1306_ManipulateLine(x1, x2, y1, y2, PIXEL_CLEAR)
 
+  uint8_t SSD1306_ClearArea (uint8_t x1, uint8_t x2, uint8_t y1, uint8_t y2);
 #endif
