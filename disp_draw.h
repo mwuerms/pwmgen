@@ -4,12 +4,13 @@
  *
  */
 
-#ifndef _DISP_H_
-#define _DISP_H_
+#ifndef _DISP_DRAW_H_
+#define _DISP_DRAW_H_
 /* - includes --------------------------------------------------------------- */
-#include <stdint.h>
 
 // - public functions ----------------------------------------------------------
-void disp_init(void);
-void disp_process_events(uint8_t events, uint8_t btn_events);
-#endif /* _DISP_H_ */
+void disp_draw_init(void);
+void disp_draw_info(void);
+void disp_draw_pwm_setup(void);
+
+#endif /* _DISP_DRAW_H_ */

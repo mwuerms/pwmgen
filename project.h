@@ -10,6 +10,11 @@
 /* - includes --------------------------------------------------------------- */
 #include <stdint.h>
 
+#define PROGRAM_NAME    "pwmgen"
+#define AUTHOR_NAME     "M.Egli"
+#define PROGRAM_YEAR    "2022"
+#define GIT_REPO_URL    "https://github.com/mwuerms/pwmgen"
+
 // - public definitions --------------------------------------------------------
 #define RET_OK  (0)
 #define RET_ERR (1)
