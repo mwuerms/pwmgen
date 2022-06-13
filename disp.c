@@ -29,7 +29,10 @@ void disp_process_events(uint8_t events, uint8_t detail_events) {
         }
         if(detail_events & EV_DISPLAY_UPDATE_INFO) {
             disp_draw_update_info();
-      }
+        }
+        if(detail_events & EV_DISPLAY_UPDATE_PWM) {
+            disp_draw_test_pwm();
+        }
     }
     return;
 }

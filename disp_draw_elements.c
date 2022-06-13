@@ -11,156 +11,100 @@
 #include "wdt.h"
 #include "ssd1306.h"
 #include "disp_draw.h"
+#include "disp_draw_elements.h"
 
-void disp_draw_init(void) {
-    // gpios
-    // vars
-    uint8_t addr = SSD1306_ADDRESS;
-    // init ssd1306
-    SSD1306_Init (SSD1306_ADDRESS);
-    // clear screen
-    SSD1306_ClearScreen ();
-    /*
-    // draw line
-    
-    // draw line
-    SSD1306_DrawLine (0, MAX_X, 18, 18);
-    // set position
-    SSD1306_SetPosition (40, 3);
-    // draw string
-    SSD1306_DrawString ("Linus");
-    // set position
-    SSD1306_SetPosition (48, 3);
-    // draw string
-    SSD1306_DrawString ("Iris Egli :-)");
-    // set position
-    SSD1306_SetPosition (58, 5);
-    // draw string
-    SSD1306_DrawString ("2022");
-    // update
-    SSD1306_UpdateScreen (SSD1306_ADDRESS);
-    */
-    SSD1306_UpdateScreen (SSD1306_ADDRESS);
-}
-void disp_draw_clear(void) {
-    SSD1306_ClearScreen ();
-    SSD1306_UpdateScreen (SSD1306_ADDRESS);
-}
-
-struct {
-    int8_t  step;
-    uint8_t pox_x;
-    uint8_t repeate;
-} info_ctrl;
-void disp_draw_info(void) {
-    SSD1306_DrawLine (0, MAX_X, 4, 4);
-    SSD1306_SetPosition (7, 1);
-    SSD1306_DrawString (PROGRAM_NAME);
-    SSD1306_SetPosition (45, 1);
-    SSD1306_DrawString ("-");
-    SSD1306_SetPosition (52, 1);
-    SSD1306_DrawString (AUTHOR_NAME);
-    SSD1306_SetPosition (87, 1);
-    SSD1306_DrawString ("-");
-    SSD1306_SetPosition (94, 1);
-    SSD1306_DrawString (PROGRAM_YEAR);
-
-    info_ctrl.step = +2;
-    info_ctrl.pox_x = 30;
-    info_ctrl.repeate = 2-1;
-    SSD1306_DrawLine (10, 20, ROW_TO_Y(3)+8, ROW_TO_Y(3)+8);
-    SSD1306_DrawLine (20, 20, ROW_TO_Y(3)+8, ROW_TO_Y(3)+0);
-    SSD1306_DrawLine (20, info_ctrl.pox_x, ROW_TO_Y(3)+0, ROW_TO_Y(3)+0);
-    SSD1306_DrawLine (info_ctrl.pox_x, info_ctrl.pox_x, ROW_TO_Y(3)+0, ROW_TO_Y(3)+8);
-    SSD1306_DrawLine (info_ctrl.pox_x, 60, ROW_TO_Y(3)+8, ROW_TO_Y(3)+8);
-    SSD1306_DrawLine (60, 60, ROW_TO_Y(3)+8, ROW_TO_Y(3)+0);
-    SSD1306_DrawLine (60, 70, ROW_TO_Y(3)+0, ROW_TO_Y(3)+0);
-
-    SSD1306_SetPosition (80, 3);
-    SSD1306_DrawString ("f=10kHz");
-
-    SSD1306_DrawLine (0, MAX_X, ROW_TO_Y(5)+3, ROW_TO_Y(5)+3);
-    SSD1306_SetPosition (0, 6);
-    SSD1306_DrawString (GIT_REPO_URL);
-    //SSD1306_SetPosition (0, 6+2);
-    //SSD1306_DrawString (GIT_VERSION);
-
-    SSD1306_UpdateScreen (SSD1306_ADDRESS);
-    wdtTimer_StartTimeout(1, cEV_TIMER_INTERVAL_125MS, EV_DISPLAY, EV_DISPLAY_UPDATE_INFO);
-}
-
-uint8_t disp_draw_update_info(void) {
-    SSD1306_ClearArea (30-1,60-1,ROW_TO_Y(3)+0, ROW_TO_Y(3)+8+1);
-    if(info_ctrl.step >= +1) {
-        info_ctrl.pox_x += info_ctrl.step;
-        if(info_ctrl.pox_x >= 50) {
-            // max
-            info_ctrl.step = -2;
-        }
+frame_t drw_frm;
+void disp_draw_element_frame(frame_t *f) {
+    uint8_t x1, x2, y1, y2;
+    x1 = f->pos.x;
+    x2 = x1 + f->size.x;
+    y1 = f->pos.y;
+    if(f->size.y >= y1) {
+        y2 = 0;
     }
     else {
-        info_ctrl.pox_x += info_ctrl.step;
-        if(info_ctrl.pox_x <= 30) {
-            // max
-            info_ctrl.step = +2;
-            if(info_ctrl.repeate == 0) {
-                // done here
-                wdtTimer_StartTimeout(1, cEV_TIMER_INTERVAL_2S, EV_DISPLAY, EV_DISPLAY_NEXT);
-                return RET_STOP;
-            }
-            info_ctrl.repeate--;
-        }
+        y2 = y1 - f->size.y;
     }
-
-    SSD1306_DrawLine (20, info_ctrl.pox_x, ROW_TO_Y(3)+0, ROW_TO_Y(3)+0);
-    SSD1306_DrawLine (info_ctrl.pox_x, info_ctrl.pox_x, ROW_TO_Y(3)+0, ROW_TO_Y(3)+8);
-    SSD1306_DrawLine (info_ctrl.pox_x, 60, ROW_TO_Y(3)+8, ROW_TO_Y(3)+8);
-
-    SSD1306_UpdateScreen (SSD1306_ADDRESS);
-    wdtTimer_StartTimeout(1, cEV_TIMER_INTERVAL_125MS, EV_DISPLAY, EV_DISPLAY_UPDATE_INFO);
-    return RET_AGAIN;
+    SSD1306_DrawLine(x1+1, x2-1, y1, y1);
+    SSD1306_DrawLine(x1+1, x2-1, y2, y2);
+    SSD1306_DrawLine(x1, x1, y1-1, y2+1);
+    SSD1306_DrawLine(x2, x2, y1-1, y2+1);
 }
 
-void disp_draw_pwm_setup(void) {
+/*void disp_draw_element_frame_row(uint8_t pos_x0, uint8_t pos_yrow0, uint8_t offs_x, uint8_t offs_y, uint8_t size_x, uint8_t size_y) {
+    uint8_t x1, x2, y1, y2;
+
+    x1 = pos_x0 + offs_x;
+    x2 = x1 + size_x;
+    if(pos_yrow0 == 0) {
+        // cannot drawSSD1306_DrawLine(x1+1, x2-1, y1, y1);
+        y1 = 0;
+        y2 = y1 + size_y-2;
+        SSD1306_DrawLine(x1+1, x2-1, y2, y2);
+        SSD1306_DrawLine(x1, x1, y1+1, y2-1);
+        SSD1306_DrawLine(x2, x2, y1+1, y2-1);
+    }
+    else {
+        y1 = ROW_TO_Y(pos_yrow0) + offs_y;
+        y2 = y1 + size_y;
+        SSD1306_DrawLine(x1+1, x2-1, y1, y1);
+        SSD1306_DrawLine(x1+1, x2-1, y2, y2);
+        SSD1306_DrawLine(x1, x1, y1+1, y2-1);
+        SSD1306_DrawLine(x2, x2, y1+1, y2-1);
+    }
+}*/
+
+void disp_draw_element_inverse(uint8_t pos_x0, uint8_t pos_yrow0, uint8_t offs_x, uint8_t offs_y, uint8_t size_x, uint8_t size_y) {
     return;
 }
 
-struct text_label output_state = {
-    .text = TEXT_OFF,
-    .text_pos.x = 8,
-    .text_pos.y = 2,
-    .frame_offset.x = -2,
-    .frame_offset.y = -2,
-    .frame_size.x = 20,
-    .frame_size.y = ROW_TO_Y(1)+2,
-};
+void disp_draw_element_text_label(text_label_t *tl) {
+    SSD1306_SetPosition (tl->pos.x, tl->pos.y);
+    SSD1306_DrawString (tl->text);
+//    .options = TEXT_LABEL_OPT_FOCUS | TEXT_LABEL_OPT_ACTIVE,
+    //if(tl->options & TEXT_LABEL_OPT_FOCUS)
+    drw_frm.pos.x = tl->frame.pos.x;
+    drw_frm.pos.y = tl->frame.pos.y;
+    drw_frm.size.x = tl->frame.size.x;
+    drw_frm.size.y = tl->frame.size.y;
+    disp_draw_element_frame(&drw_frm);
+    //disp_draw_element_frame(&(tl->frame));
+    //if(tl->options & TEXT_LABEL_OPT_ACTIVE)
+        //disp_draw_element_inverse(tl->pos.x, tl->pos.y, tl->frame_offset.x, tl->frame_offset.y, tl->frame_size.x, tl->frame_size.y);
 
-void disp_draw_element_frame(uint8_t x1, uint8_t x2, uint8_t y1, uint8_t y2) {
-    SSD1306_DrawLine(x1+1, x2-1, y1, y1);
-    SSD1306_DrawLine(x1+1, x2-1, y2, y2);
-    SSD1306_DrawLine(x1, x1, y1+1, y2-1);
-    SSD1306_DrawLine(x2, x2, y1+1, y2-1);
+    SSD1306_UpdateScreen (SSD1306_ADDRESS);
 }
 
-void disp_draw_element_text_label(void) {
-    uint8_t x1, x2, y1, y2;
-    x1 = output_state.text_pos.x+output_state.frame_offset.x;
-    y1 = ROW_TO_Y(output_state.text_pos.y)+output_state.frame_offset.y;
-    x2 = x1 + output_state.frame_size.x;
-    y2 = y1 + output_state.frame_size.y;
+void disp_draw_element_pwm_graph(pwm_graph_t *pg) {
+    uint8_t x1, x2, y1, y2, pwm_wid, pedge;
+    uint16_t pwm_duty_edge;
+    x1 = pg->pos.x;
+    x2 = x1 + pg->size.x;
+    y1 = pg->pos.y;
+    y2 = y1 - pg->size.y;
+    pwm_wid = pg->size.x;// - 2*PWM_PIXEL_BOARDER);
+    pwm_duty_edge = (pwm_wid * pg->duty) / 100;
+    pedge = (uint8_t)pwm_duty_edge;
 
-    SSD1306_SetPosition (output_state.text_pos.x, output_state.text_pos.y);
-    SSD1306_DrawString (output_state.text);
-    disp_draw_element_frame(x1, x2, y1, y2);
+    SSD1306_ClearArea(x1, x2, y1+1, y2);
+    disp_draw_element_frame(&(pg)->frame);
 /*
-    SSD1306_DrawPixel(output_state.text_pos.x, output_state.text_pos.y);
-    SSD1306_DrawPixel(output_state.text_pos.x+1, output_state.text_pos.y);
-    SSD1306_DrawPixel(x1, y1);
-    SSD1306_DrawPixel(x1, y1+1);
-    SSD1306_DrawPixel(x1, y1+2);
-    SSD1306_DrawPixel(x2, y2);
-    SSD1306_DrawPixel(x2, y2+1);
-*/
+    // 1st edge
+    SSD1306_DrawLine(x1+PWM_PIXEL_BOARDER, x1+PWM_PIXEL_BOARDER, y1-PWM_PIXEL_BOARDER, y2+PWM_PIXEL_BOARDER);
+    // duty
+    SSD1306_DrawLine(x1+PWM_PIXEL_BOARDER, x1+PWM_PIXEL_BOARDER+pwm_duty_edge, y2+PWM_PIXEL_BOARDER, y2+PWM_PIXEL_BOARDER);
+    SSD1306_DrawLine(x1+PWM_PIXEL_BOARDER+pwm_duty_edge, x1+PWM_PIXEL_BOARDER+pwm_duty_edge, y1-PWM_PIXEL_BOARDER, y2+PWM_PIXEL_BOARDER);
+    SSD1306_DrawLine(x1+PWM_PIXEL_BOARDER+pwm_duty_edge, x2-PWM_PIXEL_BOARDER, y1-PWM_PIXEL_BOARDER, y1-PWM_PIXEL_BOARDER);
+    // 2nd edge
+    SSD1306_DrawLine(x2-PWM_PIXEL_BOARDER, x2-PWM_PIXEL_BOARDER, y1-PWM_PIXEL_BOARDER, y2+PWM_PIXEL_BOARDER);*/
 
+    SSD1306_DrawLine(x1, x1, y1, y2);
+    // duty
+    SSD1306_DrawLine(x1, x1+pedge, y2, y2);
+    SSD1306_DrawLine(x1+pedge, x1+pedge, y1, y2);
+    SSD1306_DrawLine(x1+pedge, x2, y1, y1);
+    // 2nd edge
+    SSD1306_DrawLine(x2, x2, y1, y2);  
+    
     SSD1306_UpdateScreen (SSD1306_ADDRESS);
 }

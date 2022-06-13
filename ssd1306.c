@@ -544,7 +544,7 @@ uint8_t SSD1306_ManipulatePixel (uint8_t x, uint8_t y, uint8_t pixel_value)
   uint8_t pixel = 0;
 
   // if out of range
-  if ((x > MAX_X) && (y > MAX_Y)) {
+  if ((x > MAX_X) || (y > MAX_Y)) {
     // out of range
     return SSD1306_ERROR;
   }
@@ -588,6 +588,10 @@ uint8_t SSD1306_ManipulateLine (uint8_t x1, uint8_t x2, uint8_t y1, uint8_t y2, 
   // delta y
   delta_y = y2 - y1;
 
+  if((x1 > MAX_X) || (x2 > MAX_X) || (y1 > MAX_Y) || (y2 > MAX_Y)) {
+    // at least 1 value out of display, do not draw
+    return SSD1306_ERROR;
+  }
   // check if x2 > x1
   if (delta_x < 0) {
     // negate delta x

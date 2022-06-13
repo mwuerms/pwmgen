@@ -4,41 +4,44 @@
  *
  */
 
-#ifndef _DISP_DRAW_H_
-#define _DISP_DRAW_H_
+#ifndef _DISP_DRAW_ELEMENTS_H_
+#define _DISP_DRAW_ELEMENTS_H_
+
 /* - includes --------------------------------------------------------------- */
 #include <stdint.h>
 #include "macrolib.h"
 
 // - definitions ---------------------------------------------------------------
-#define TEXT_ON     "ON"
-#define TEXT_OFF     "OFF"
-#define TEXT_3_3V   "3.3V"
-#define TEXT_5_0V   "5.0V"
-#define TEXT_SWEEP_OFF   "SWEEP_OFF"
-#define TEXT_SWEEP_DUTY   "SWEEP_FREQ"
-#define TEXT_SWEEP_DUTY   "SWEEP_DUTY"
 
-struct coord {
+typedef struct {
     int8_t x, y;
-};
+} coord_t;
 
-#define TEXT_LABEL_OPT_FOCUS    _BV(0)
-#define TEXT_LABEL_OPT_INVERSE  _BV(1)
-struct text_label {
+typedef struct {
+    coord_t pos;
+    coord_t size;
+} frame_t;
+
+#define TEXT_LABEL_OPT_FOCUS      _BV(0)
+#define TEXT_LABEL_OPT_ACTIVE     _BV(1)
+typedef struct {
     char *text;
-    struct coord text_pos;
-    struct coord frame_offset;
-    struct coord frame_size;
+    coord_t pos;
+    frame_t frame;
     uint8_t options;
-};
+} text_label_t;
+
+typedef struct {
+    coord_t pos;
+    coord_t size;
+    frame_t frame;
+    uint8_t duty;
+} pwm_graph_t;
 
 // - public functions ----------------------------------------------------------
-void disp_draw_init(void);
-void disp_draw_clear(void);
 
-void disp_draw_info(void);
-uint8_t disp_draw_update_info(void);
-void disp_draw_pwm_setup(void);
+void disp_draw_element_frame(frame_t *f);
+void disp_draw_element_text_label(text_label_t *tl);
+void disp_draw_element_pwm_graph(pwm_graph_t *pg);
 
-#endif /* _DISP_DRAW_H_ */
+#endif /* _DISP_DRAW_ELEMENTS_H_ */

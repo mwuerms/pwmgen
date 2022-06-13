@@ -11,6 +11,7 @@
 #include "wdt.h"
 #include "ssd1306.h"
 #include "disp_draw.h"
+#include "disp_draw_elements.h"
 
 void disp_draw_init(void) {
     // gpios
@@ -125,42 +126,78 @@ void disp_draw_pwm_setup(void) {
     return;
 }
 
-struct text_label output_state = {
-    .text = TEXT_OFF,
-    .text_pos.x = 8,
-    .text_pos.y = 2,
-    .frame_offset.x = -2,
-    .frame_offset.y = -2,
-    .frame_size.x = 20,
-    .frame_size.y = ROW_TO_Y(1)+2,
+static const char text_on[] = "ON";
+static const char text_off[] = "OFF";
+static const char text_3_3V[] = "3.3V";
+static const char text_5_0V[] = "5.0V";
+static const char text_sweep_off[] = "SWEEP_OFF";
+static const char text_sweep_freq[] = "SWEEP_FREQ";
+static const char text_sweep_duty[] = "SWEEP_DUTY";
+
+text_label_t output_state = {
+    .text = text_on,
+    .pos.x = 2,
+    .pos.y = 0,
+    .frame.pos.x = 2-2,
+    .frame.pos.y = 8+0,//ROW_TO_Y(0)-2,
+    .frame.size.x = 20,
+    .frame.size.y = 8+2,//ROW_TO_Y(1)+2,
+    .options = 0,
 };
 
-void disp_draw_element_frame(uint8_t x1, uint8_t x2, uint8_t y1, uint8_t y2) {
-    SSD1306_DrawLine(x1+1, x2-1, y1, y1);
-    SSD1306_DrawLine(x1+1, x2-1, y2, y2);
-    SSD1306_DrawLine(x1, x1, y1+1, y2-1);
-    SSD1306_DrawLine(x2, x2, y1+1, y2-1);
+text_label_t output_voltage = {
+    .text = text_5_0V,
+    .pos.x = 26,
+    .pos.y = 0,
+    .frame.pos.x = 26-2,
+    .frame.pos.y = ROW_TO_Y(0),
+    .frame.size.x = 30,
+    .frame.size.y = ROW_TO_Y(1)+2,
+    .options = TEXT_LABEL_OPT_FOCUS | TEXT_LABEL_OPT_ACTIVE,
+};
+
+text_label_t sweep_label = {
+    .text = text_sweep_freq,
+    .pos.x = 60,
+    .pos.y = 0,
+    .frame.pos.x = 60-2,
+    .frame.pos.y = ROW_TO_Y(0),
+    .frame.size.x = 64,
+    .frame.size.y = ROW_TO_Y(1)+2,
+    .options = TEXT_LABEL_OPT_FOCUS,
+};
+
+frame_t disp_outer_frame = {
+    .pos.x = 0,
+    .pos.y = 63,
+    .size.x = 127,
+    .size.y = 63-10,
+};
+
+void disp_draw_test_label(void) {
+    disp_draw_element_frame(&disp_outer_frame);
+    //disp_draw_element_frame(&(output_state.frame));
+    disp_draw_element_text_label(&output_state);
+    disp_draw_element_text_label(&output_voltage);
+    disp_draw_element_text_label(&sweep_label);
 }
 
-void disp_draw_element_text_label(void) {
-    uint8_t x1, x2, y1, y2;
-    x1 = output_state.text_pos.x+output_state.frame_offset.x;
-    y1 = ROW_TO_Y(output_state.text_pos.y)+output_state.frame_offset.y;
-    x2 = x1 + output_state.frame_size.x;
-    y2 = y1 + output_state.frame_size.y;
+pwm_graph_t pwm_disp = {
+    .pos.x = 6,
+    .pos.y = 58,
+    .size.x = 58,
+    .size.y = 28,
+    .frame.pos.x = 3,
+    .frame.pos.y = 60,
+    .frame.size.x = 64,
+    .frame.size.y = 32,
+    .duty = 20,
+};
 
-    SSD1306_SetPosition (output_state.text_pos.x, output_state.text_pos.y);
-    SSD1306_DrawString (output_state.text);
-    disp_draw_element_frame(x1, x2, y1, y2);
-/*
-    SSD1306_DrawPixel(output_state.text_pos.x, output_state.text_pos.y);
-    SSD1306_DrawPixel(output_state.text_pos.x+1, output_state.text_pos.y);
-    SSD1306_DrawPixel(x1, y1);
-    SSD1306_DrawPixel(x1, y1+1);
-    SSD1306_DrawPixel(x1, y1+2);
-    SSD1306_DrawPixel(x2, y2);
-    SSD1306_DrawPixel(x2, y2+1);
-*/
-
-    SSD1306_UpdateScreen (SSD1306_ADDRESS);
+void disp_draw_test_pwm(void) {
+    pwm_disp.duty++;
+    if(pwm_disp.duty > 100)
+        pwm_disp.duty = 0;
+    disp_draw_element_pwm_graph(&pwm_disp);
+    wdtTimer_StartTimeout(1, cEV_TIMER_INTERVAL_125MS, EV_DISPLAY, EV_DISPLAY_UPDATE_PWM);
 }

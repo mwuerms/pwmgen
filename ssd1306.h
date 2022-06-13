@@ -86,7 +86,7 @@
 
   #define MAX_X                     END_COLUMN_ADDR
   #define MAX_Y                     (END_PAGE_ADDR+1)*8
-  #define ROW_TO_Y(row)             (row*8)
+  #define ROW_TO_Y(row)             ((row+1)*8)
   // @var set area
   extern unsigned int _counter;
 

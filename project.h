@@ -32,6 +32,7 @@ extern volatile uint8_t global_events;
 extern volatile uint8_t global_display_events;
 #define EV_DISPLAY_NEXT         _BV(0)
 #define EV_DISPLAY_UPDATE_INFO  _BV(1)
+#define EV_DISPLAY_UPDATE_PWM   _BV(2)
 
 extern volatile uint8_t global_button_events;
 
