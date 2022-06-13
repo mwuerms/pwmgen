@@ -142,7 +142,7 @@ text_label_t output_state = {
     .frame.pos.y = 8+0,//ROW_TO_Y(0)-2,
     .frame.size.x = 20,
     .frame.size.y = 8+2,//ROW_TO_Y(1)+2,
-    .options = 0,
+    .options = TEXT_LABEL_OPT_ACTIVE,
 };
 
 text_label_t output_voltage = {
@@ -164,7 +164,7 @@ text_label_t sweep_label = {
     .frame.pos.y = ROW_TO_Y(0),
     .frame.size.x = 64,
     .frame.size.y = ROW_TO_Y(1)+2,
-    .options = TEXT_LABEL_OPT_FOCUS,
+    .options = 0,
 };
 
 frame_t disp_outer_frame = {
@@ -174,22 +174,54 @@ frame_t disp_outer_frame = {
     .size.y = 63-10,
 };
 
+input_2row_t freq_input = {
+    .text0 = "F:0000kHz",
+    .pos0.x = 70,
+    .pos0.y = 2,
+    .text1 = "T:0.000ms",
+    .pos1.x = 70,
+    .pos1.y = 3,
+    .frame.pos.x = 70-2,
+    .frame.pos.y = ROW_TO_Y(3),
+    .frame.size.x = 127-70-2,
+    .frame.size.y = ROW_TO_Y(2)-5,
+    .options = TEXT_LABEL_OPT_FOCUS,
+    .cursor_pos0 = 5,
+};
+
+input_2row_t duty_input = {
+    .text0 = "Duty:99.9%",
+    .pos0.x = 70,
+    .pos0.y = 5,
+    .text1 = "th:0.00ms",
+    .pos1.x = 70,
+    .pos1.y = 6,
+    .frame.pos.x = 70-2,
+    .frame.pos.y = ROW_TO_Y(6),
+    .frame.size.x = 127-70-2,
+    .frame.size.y = ROW_TO_Y(2)-5,
+    .cursor_pos0 = 7,
+};
+
 void disp_draw_test_label(void) {
     disp_draw_element_frame(&disp_outer_frame);
     //disp_draw_element_frame(&(output_state.frame));
     disp_draw_element_text_label(&output_state);
     disp_draw_element_text_label(&output_voltage);
     disp_draw_element_text_label(&sweep_label);
+
+    disp_draw_element_input_2row(&freq_input);
+    disp_draw_element_input_2row(&duty_input);
 }
 
 pwm_graph_t pwm_disp = {
     .pos.x = 6,
-    .pos.y = 58,
-    .size.x = 58,
+    .pos.y = 42,
+    .size.x = 54,
     .size.y = 28,
     .frame.pos.x = 3,
-    .frame.pos.y = 60,
-    .frame.size.x = 64,
+    .frame.pos.y = 44,
+    .frame.size.x = 60,
     .frame.size.y = 32,
     .duty = 20,
 };

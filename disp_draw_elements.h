@@ -32,6 +32,16 @@ typedef struct {
 } text_label_t;
 
 typedef struct {
+    char *text0;
+    coord_t pos0;
+    char *text1;
+    coord_t pos1;
+    frame_t frame;
+    uint8_t options;
+    uint8_t cursor_pos0;
+} input_2row_t;
+
+typedef struct {
     coord_t pos;
     coord_t size;
     frame_t frame;

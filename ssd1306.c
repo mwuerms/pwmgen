@@ -554,6 +554,7 @@ uint8_t SSD1306_ManipulatePixel (uint8_t x, uint8_t y, uint8_t pixel_value)
   pixel = 1 << (y - (page << 3));
   // update counter
   _counter = x + (page << 7);
+
   // save pixel
   if(pixel_value == PIXEL_CLEAR)
     cacheMemLcd[_counter++] &= ~pixel;
@@ -562,6 +563,29 @@ uint8_t SSD1306_ManipulatePixel (uint8_t x, uint8_t y, uint8_t pixel_value)
 
   // success
   return SSD1306_SUCCESS;
+}
+
+uint8_t SSD1306_GetPixelValue (uint8_t x, uint8_t y)
+{
+  uint8_t page = 0;
+  uint8_t pixel = 0;
+
+  // if out of range
+  if ((x > MAX_X) || (y > MAX_Y)) {
+    // out of range
+    return SSD1306_ERROR;
+  }
+  // find page (y / 8)
+  page = y >> 3;
+  // which pixel (y % 8)
+  pixel = 1 << (y - (page << 3));
+  // update counter
+  _counter = x + (page << 7);
+
+  // return pixel
+  if(cacheMemLcd[_counter++] & pixel)
+    return PIXEL_SET;
+  return PIXEL_CLEAR;
 }
 
 /**
@@ -683,6 +707,37 @@ uint8_t SSD1306_ClearArea (uint8_t x1, uint8_t x2, uint8_t y1, uint8_t y2) {
   for(step_x = x0; step_x < x2; step_x++) {
     for(step_y = y0; step_y < y2; step_y++) {
       SSD1306_ClearPixel(step_x, step_y);
+    }
+  }
+  // success return
+  return SSD1306_SUCCESS;
+}
+
+uint8_t SSD1306_InverseArea (uint8_t x1, uint8_t x2, uint8_t y1, uint8_t y2) {
+  uint8_t x0, y0, step_x, step_y, pixel;
+  if(x1 < x2) {
+    x0 = x1;
+    x2 = x2;
+  }
+  else {
+    x0 = x2;
+    x2 = x1;
+  }
+  if(y1 < y2) {
+    y0 = y1;
+    y2 = y2;
+  }
+  else {
+    y0 = y2;
+    y2 = y1;
+  }
+
+  for(step_x = x0; step_x < x2; step_x++) {
+    for(step_y = y0; step_y < y2; step_y++) {
+      if(SSD1306_GetPixelValue(step_x, step_y) == PIXEL_SET)
+        SSD1306_ClearPixel(step_x, step_y);
+      else
+        SSD1306_DrawPixel(step_x, step_y);
     }
   }
   // success return

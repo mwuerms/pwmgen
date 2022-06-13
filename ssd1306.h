@@ -219,4 +219,5 @@
   #define SSD1306_ClearLine(x1, x2, y1, y2)     SSD1306_ManipulateLine(x1, x2, y1, y2, PIXEL_CLEAR)
 
   uint8_t SSD1306_ClearArea (uint8_t x1, uint8_t x2, uint8_t y1, uint8_t y2);
+  uint8_t SSD1306_InverseArea (uint8_t x1, uint8_t x2, uint8_t y1, uint8_t y2);
 #endif
