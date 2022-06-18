@@ -9,53 +9,33 @@
 #include "project.h"
 #include "version.h"
 #include "wdt.h"
-#include "ssd1306.h"
+#include "lcd.h"
 #include "disp_draw.h"
 #include "disp_draw_elements.h"
 
 void disp_draw_init(void) {
     // gpios
     // vars
-    uint8_t addr = SSD1306_ADDRESS;
-    // init ssd1306
-    SSD1306_Init (SSD1306_ADDRESS);
-    // clear screen
-    SSD1306_ClearScreen ();
-    /*
-    // draw line
-    
-    // draw line
-    SSD1306_DrawLine (0, MAX_X, 18, 18);
-    // set position
-    SSD1306_SetPosition (40, 3);
-    // draw string
-    SSD1306_DrawString ("Linus");
-    // set position
-    SSD1306_SetPosition (48, 3);
-    // draw string
-    SSD1306_DrawString ("Iris Egli :-)");
-    // set position
-    SSD1306_SetPosition (58, 5);
-    // draw string
-    SSD1306_DrawString ("2022");
-    // update
-    SSD1306_UpdateScreen (SSD1306_ADDRESS);
-    */
-    SSD1306_UpdateScreen (SSD1306_ADDRESS);
+    lcd_init(LCD_DISP_ON);    // init lcd and turn on
+    lcd_charMode(DOUBLESIZE);
 }
 void disp_draw_clear(void) {
-    SSD1306_ClearScreen ();
-    SSD1306_UpdateScreen (SSD1306_ADDRESS);
+    lcd_clrscr ();
+    lcd_display ();
 }
-
+#define TEXT_INFO   "INFO InFo"
 struct {
     int8_t  step;
     uint8_t pox_x;
     uint8_t repeate;
 } info_ctrl;
 void disp_draw_info(void) {
-    SSD1306_DrawLine (0, MAX_X, 4, 4);
-    SSD1306_SetPosition (7, 1);
+    //lcd_charMode(DOUBLESIZE);
+    lcd_puts("Hello World");  // put string from RAM to display (TEXTMODE) or buffer (GRAPHICMODE)
+    lcd_gotoxy(0,2);          // set cursor to first column at line 3
+    lcd_puts_p(PSTR(TEXT_INFO));  // puts string form flash to display (TEXTMODE) or buffer (GRAPHICMODE)
+    lcd_drawLine (0, 4, MAX_X, 4, WHITE);
+    /*SSD1306_SetPosition (7, 1);
     SSD1306_DrawString (PROGRAM_NAME);
     SSD1306_SetPosition (45, 1);
     SSD1306_DrawString ("-");
@@ -84,14 +64,14 @@ void disp_draw_info(void) {
     SSD1306_SetPosition (0, 6);
     SSD1306_DrawString (GIT_REPO_URL);
     //SSD1306_SetPosition (0, 6+2);
-    //SSD1306_DrawString (GIT_VERSION);
+    //SSD1306_DrawString (GIT_VERSION);*/
 
-    SSD1306_UpdateScreen (SSD1306_ADDRESS);
+    lcd_display ();
     wdtTimer_StartTimeout(1, cEV_TIMER_INTERVAL_125MS, EV_DISPLAY, EV_DISPLAY_UPDATE_INFO);
 }
 
 uint8_t disp_draw_update_info(void) {
-    SSD1306_ClearArea (30-1,60-1,ROW_TO_Y(3)+0, ROW_TO_Y(3)+8+1);
+    /*SSD1306_ClearArea (30-1,60-1,ROW_TO_Y(3)+0, ROW_TO_Y(3)+8+1);
     if(info_ctrl.step >= +1) {
         info_ctrl.pox_x += info_ctrl.step;
         if(info_ctrl.pox_x >= 50) {
@@ -120,25 +100,21 @@ uint8_t disp_draw_update_info(void) {
     SSD1306_UpdateScreen (SSD1306_ADDRESS);
     wdtTimer_StartTimeout(1, cEV_TIMER_INTERVAL_125MS, EV_DISPLAY, EV_DISPLAY_UPDATE_INFO);
     return RET_AGAIN;
-}
-
-void disp_draw_pwm_setup(void) {
-    return;
+    */
 }
 
 static const char text_on[] = "ON";
 static const char text_off[] = "OFF";
 static const char text_3_3V[] = "3.3V";
 static const char text_5_0V[] = "5.0V";
-static const char text_sweep_off[] = "SWEEP_OFF";
-static const char text_sweep_freq[] = "SWEEP_FREQ";
-static const char text_sweep_duty[] = "SWEEP_DUTY";
+static const char text_freq[] = "F: 9999 Hz";
+static const char text_duty[] = "Dut:100.0%";
 
 text_label_t output_state = {
     .text = text_on,
-    .pos.x = 2,
-    .pos.y = 0,
-    .frame.pos.x = 2-2,
+    .pos.x = 4,
+    .pos.y = 1,
+    .frame.pos.x = 2,
     .frame.pos.y = 8+0,//ROW_TO_Y(0)-2,
     .frame.size.x = 20,
     .frame.size.y = 8+2,//ROW_TO_Y(1)+2,
@@ -156,22 +132,11 @@ text_label_t output_voltage = {
     .options = TEXT_LABEL_OPT_FOCUS | TEXT_LABEL_OPT_ACTIVE,
 };
 
-text_label_t sweep_label = {
-    .text = text_sweep_freq,
-    .pos.x = 60,
-    .pos.y = 0,
-    .frame.pos.x = 60-2,
-    .frame.pos.y = ROW_TO_Y(0),
-    .frame.size.x = 64,
-    .frame.size.y = ROW_TO_Y(1)+2,
-    .options = 0,
-};
-
 frame_t disp_outer_frame = {
     .pos.x = 0,
-    .pos.y = 63,
-    .size.x = 127,
-    .size.y = 63-10,
+    .pos.y = 0,
+    .size.x = MAX_X,
+    .size.y = MAX_Y,
 };
 
 input_2row_t freq_input = {
@@ -208,7 +173,6 @@ void disp_draw_test_label(void) {
     //disp_draw_element_frame(&(output_state.frame));
     disp_draw_element_text_label(&output_state);
     disp_draw_element_text_label(&output_voltage);
-    disp_draw_element_text_label(&sweep_label);
 
     disp_draw_element_input_2row(&freq_input);
     disp_draw_element_input_2row(&duty_input);
@@ -232,4 +196,26 @@ void disp_draw_test_pwm(void) {
         pwm_disp.duty = 0;
     disp_draw_element_pwm_graph(&pwm_disp);
     wdtTimer_StartTimeout(1, cEV_TIMER_INTERVAL_125MS, EV_DISPLAY, EV_DISPLAY_UPDATE_PWM);
+}
+
+void disp_draw_pwm_setup(void) {
+    //disp_draw_element_frame(&disp_outer_frame);
+
+    lcd_gotoxy(0, 0);
+    lcd_puts(text_on);
+
+    lcd_gotoxy(0, 3);
+    lcd_puts(text_freq);
+
+    lcd_gotoxy(0, 6);
+    lcd_puts(text_duty);
+
+//    disp_draw_element_frame(&(output_state.frame));
+    //disp_draw_element_text_label(&output_state);
+    //disp_draw_element_text_label(&output_voltage);
+    //disp_draw_element_text_label(&sweep_label);
+
+    //disp_draw_element_input_2row(&freq_input);
+    //disp_draw_element_input_2row(&duty_input);
+    lcd_display();
 }

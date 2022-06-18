@@ -9,30 +9,25 @@
 #include "project.h"
 #include "version.h"
 #include "wdt.h"
-#include "ssd1306.h"
+#include "lcd.h"
 #include "disp_draw.h"
 #include "disp_draw_elements.h"
 
 frame_t drw_frm;
 void disp_draw_element_frame(frame_t *f) {
-    uint8_t x1, x2, y1, y2;
-    x1 = f->pos.x;
-    x2 = x1 + f->size.x;
-    y1 = f->pos.y;
-    if(f->size.y >= y1) {
-        y2 = 0;
-    }
-    else {
-        y2 = y1 - f->size.y;
-    }
-    SSD1306_DrawLine(x1+1, x2-1, y1, y1);
-    SSD1306_DrawLine(x1+1, x2-1, y2, y2);
-    SSD1306_DrawLine(x1, x1, y1-1, y2+1);
-    SSD1306_DrawLine(x2, x2, y1-1, y2+1);
+    uint8_t x0, x1, y0, y1;
+    x0 = f->pos.x;
+    x1 = x0 + f->size.x;
+    y0 = f->pos.y;
+    y1 = y0 + f->size.y;    
+    lcd_drawLine (x0+1, y0, x1-1, y0, WHITE);
+    lcd_drawLine (x0, y0+1, x0, y1-1, WHITE);
+    lcd_drawLine (x0+1, y1, x1-1, y1, WHITE);
+    lcd_drawLine (x1, y0+1, x1, y1-1, WHITE);
 }
 
 inline void disp_draw_element_inverse_area(uint8_t x1, uint8_t x2, uint8_t y1, uint8_t y2) {
-    SSD1306_InverseArea(x1, x2, y1, y2);
+    //SSD1306_InverseArea(x1, x2, y1, y2);
 }
 
 void disp_draw_element_inverse_inside_frame(frame_t *f) {
@@ -46,7 +41,7 @@ void disp_draw_element_inverse_inside_frame(frame_t *f) {
     else {
         y2 = y1 - f->size.y;
     }
-    SSD1306_InverseArea(x1+2, x2-1, y1-1, y2+2);
+    //SSD1306_InverseArea(x1+2, x2-1, y1-1, y2+2);
 }
 
 void disp_draw_element_inverse_text_position(uint8_t x, uint8_t y, uint8_t cursor_pos) {
@@ -59,19 +54,17 @@ void disp_draw_element_inverse_text_position(uint8_t x, uint8_t y, uint8_t curso
 }
 
 void disp_draw_element_text_label(text_label_t *el) {
-    SSD1306_SetPosition (el->pos.x, el->pos.y);
-    SSD1306_DrawString (el->text);
+    lcd_gotoxy(el->pos.x, el->pos.y);
+    lcd_puts(el->text);
     
     if(el->options & TEXT_LABEL_OPT_FOCUS)
         disp_draw_element_frame(&(el->frame));
     if(el->options & TEXT_LABEL_OPT_ACTIVE)
         disp_draw_element_inverse_inside_frame(&(el->frame));
-
-    SSD1306_UpdateScreen (SSD1306_ADDRESS);
 }
 
 void disp_draw_element_input_2row(input_2row_t *el) {
-    SSD1306_SetPosition (el->pos0.x, el->pos0.y);
+    /*SSD1306_SetPosition (el->pos0.x, el->pos0.y);
     SSD1306_DrawString (el->text0);
     SSD1306_SetPosition (el->pos1.x, el->pos1.y);
     SSD1306_DrawString (el->text1);
@@ -81,7 +74,7 @@ void disp_draw_element_input_2row(input_2row_t *el) {
     }
     //if(el->options & TEXT_LABEL_OPT_ACTIVE)
     //    disp_draw_element_inverse_inside_frame(&(el->frame));
-    SSD1306_UpdateScreen (SSD1306_ADDRESS);
+    SSD1306_UpdateScreen (SSD1306_ADDRESS);*/
 }
 
 void disp_draw_element_pwm_graph(pwm_graph_t *el) {
@@ -94,7 +87,7 @@ void disp_draw_element_pwm_graph(pwm_graph_t *el) {
     pwm_wid = el->size.x;// - 2*PWM_PIXEL_BOARDER);
     pwm_duty_edge = (pwm_wid * el->duty) / 100;
     pedge = (uint8_t)pwm_duty_edge;
-
+/*
     SSD1306_ClearArea(x1, x2, y1+1, y2);
     disp_draw_element_frame(&(el)->frame);
 
@@ -106,5 +99,5 @@ void disp_draw_element_pwm_graph(pwm_graph_t *el) {
     // 2nd edge
     SSD1306_DrawLine(x2, x2, y1, y2);  
     
-    SSD1306_UpdateScreen (SSD1306_ADDRESS);
+    SSD1306_UpdateScreen (SSD1306_ADDRESS);*/
 }

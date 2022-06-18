@@ -38,9 +38,7 @@ int main(void) {
     use_sleep_mode(ACTIVE);
 
     disp_init();
-    //disp_show_info();
-    disp_draw_test_label();
-    disp_draw_test_pwm();
+    disp_show_pwm_setup();
 
     pwm_init();
     pwm_start(250, 320);
