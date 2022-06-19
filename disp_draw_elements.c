@@ -53,12 +53,31 @@ void disp_draw_element_inverse_text_position(uint8_t x, uint8_t y, uint8_t curso
     disp_draw_element_inverse_area(x, x2, y, y2);
 }
 
+void disp_draw_element_text_label_focus(text_label_t *el) {
+    // pos.x, pos.y in character
+    uint8_t x, y;
+    if(el->pos.x == 0)
+        x = 0;
+    else
+        x = el->pos.x*6 - 5;
+    if(el->pos.y == 0)
+        y = 0;
+    else
+        y = el->pos.x*6 - 5;
+    
+    for(uint8_t i = 0; i < 11; i++) 
+        lcd_drawLine(x, y+i, x+4, y+5, WHITE);
+    //lcd_drawLine(x, y+10, x+4, y+5, WHITE);
+    //lcd_drawLine(x, y+10, x+4, y+5, WHITE);
+    lcd_drawLine(x, y, x, y+10, WHITE);
+}
+
 void disp_draw_element_text_label(text_label_t *el) {
     lcd_gotoxy(el->pos.x, el->pos.y);
     lcd_puts(el->text);
     
     if(el->options & TEXT_LABEL_OPT_FOCUS)
-        disp_draw_element_frame(&(el->frame));
+        disp_draw_element_text_label_focus(el);
     if(el->options & TEXT_LABEL_OPT_ACTIVE)
         disp_draw_element_inverse_inside_frame(&(el->frame));
 }

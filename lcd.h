@@ -108,8 +108,7 @@ extern "C" {
 #define DISPLAY_HEIGHT        64
 #define MAX_X   (DISPLAY_WIDTH-1)
 #define MAX_Y   (DISPLAY_HEIGHT-1)
-#define ROW_TO_Y(y)    (8*y)
-    
+#define ROW_TO_Y(y)    (8*y)    
     
     void lcd_command(uint8_t cmd[], uint8_t size);    // transmit command to display
     void lcd_data(uint8_t data[], uint16_t size);    // transmit data to display
