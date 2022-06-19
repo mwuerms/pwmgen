@@ -12,33 +12,34 @@
 #include "macrolib.h"
 
 // - public definitions --------------------------------------------------------
-#define PROGRAM_NAME    "pwmgen"
-#define AUTHOR_NAME     "M.Egli"
-#define PROGRAM_YEAR    "2022"
-#define GIT_REPO_URL    "https://github.com/mwuerms/pwmgen"
+#define PROGRAM_NAME "pwmgen"
+#define AUTHOR_NAME "M.Egli"
+#define PROGRAM_YEAR "2022"
+//#define GIT_REPO_URL    "https://github.com/mwuerms/pwmgen"
+#define GIT_REPO_URL "github.com/mwuerms"
 
-#define RET_OK  (0)
+#define RET_OK (0)
 #define RET_ERR (1)
 
-#define RET_AGAIN   (RET_OK)
-#define RET_STOP    (RET_ERR)
+#define RET_AGAIN (RET_OK)
+#define RET_STOP (RET_ERR)
 
 /* - public variables ------------------------------------------------------- */
 extern volatile uint8_t global_events;
-#define EV_WAKEUP   _BV(0)
-#define EV_DISPLAY  _BV(1)  // also use global_display_events
-#define EV_BUTTON   _BV(2)  // also use global_button_events
+#define EV_WAKEUP _BV(0)
+#define EV_DISPLAY _BV(1) // also use global_display_events
+#define EV_BUTTON _BV(2)  // also use global_button_events
 
 extern volatile uint8_t global_display_events;
-#define EV_DISPLAY_NEXT         _BV(0)
-#define EV_DISPLAY_UPDATE_INFO  _BV(1)
-#define EV_DISPLAY_UPDATE_PWM   _BV(2)
+#define EV_DISPLAY_NEXT _BV(0)
+#define EV_DISPLAY_UPDATE_INFO _BV(1)
+#define EV_DISPLAY_UPDATE_PWM _BV(2)
 
 extern volatile uint8_t global_button_events;
 
-#define SEND_EVENT(ev)              global_events |= ev
-#define SEND_DISPLAY_EVENT(ev)      global_display_events |= ev
-#define SEND_BUTTON_EVENT(ev)       global_button_events |= ev
+#define SEND_EVENT(ev) global_events |= ev
+#define SEND_DISPLAY_EVENT(ev) global_display_events |= ev
+#define SEND_BUTTON_EVENT(ev) global_button_events |= ev
 
 /* - functions -------------------------------------------------------------- */
 

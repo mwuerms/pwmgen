@@ -32,43 +32,37 @@ struct
 } info_ctrl;
 void disp_draw_info(void)
 {
-  // lcd_charMode(DOUBLESIZE);
-  lcd_puts("Hello World"); // put string from RAM to display (TEXTMODE) or
-                           // buffer (GRAPHICMODE)
-  lcd_gotoxy(0, 2);        // set cursor to first column at line 3
-  lcd_puts_p("ab");        // puts string form flash to display (TEXTMODE)
-                           // or buffer (GRAPHICMODE)
-  lcd_drawLine(0, 4, MAX_X, 4, WHITE);
-  /*SSD1306_SetPosition (7, 1);
-  SSD1306_DrawString (PROGRAM_NAME);
-  SSD1306_SetPosition (45, 1);
-  SSD1306_DrawString ("-");
-  SSD1306_SetPosition (52, 1);
-  SSD1306_DrawString (AUTHOR_NAME);
-  SSD1306_SetPosition (87, 1);
-  SSD1306_DrawString ("-");
-  SSD1306_SetPosition (94, 1);
-  SSD1306_DrawString (PROGRAM_YEAR);
+  lcd_drawLine(0, ROW_TO_Y(0) + 4, MAX_X, ROW_TO_Y(0) + 4, WHITE);
+  lcd_drawLine(0, ROW_TO_Y(0) + 5, MAX_X, ROW_TO_Y(0) + 5, WHITE);
+  lcd_charMode(DOUBLESIZE);
+  lcd_gotoxy(4, 1);
+  lcd_puts(PROGRAM_NAME);
+  lcd_drawLine(0, ROW_TO_Y(3) + 3, MAX_X, ROW_TO_Y(3) + 3, WHITE);
 
   info_ctrl.step = +2;
   info_ctrl.pox_x = 30;
-  info_ctrl.repeate = 2-1;
-  SSD1306_DrawLine (10, 20, ROW_TO_Y(3)+8, ROW_TO_Y(3)+8);
-  SSD1306_DrawLine (20, 20, ROW_TO_Y(3)+8, ROW_TO_Y(3)+0);
-  SSD1306_DrawLine (20, info_ctrl.pox_x, ROW_TO_Y(3)+0, ROW_TO_Y(3)+0);
-  SSD1306_DrawLine (info_ctrl.pox_x, info_ctrl.pox_x, ROW_TO_Y(3)+0,
-  ROW_TO_Y(3)+8); SSD1306_DrawLine (info_ctrl.pox_x, 60, ROW_TO_Y(3)+8,
-  ROW_TO_Y(3)+8); SSD1306_DrawLine (60, 60, ROW_TO_Y(3)+8, ROW_TO_Y(3)+0);
-  SSD1306_DrawLine (60, 70, ROW_TO_Y(3)+0, ROW_TO_Y(3)+0);
+  info_ctrl.repeate = 2;
+  /*
+    lcd_drawLine(10, ROW_TO_Y(5), 20, ROW_TO_Y(5), WHITE);
+    lcd_drawLine(20, ROW_TO_Y(5), 20, ROW_TO_Y(5) - 10, WHITE);
+    lcd_drawLine(20, ROW_TO_Y(5) - 10, info_ctrl.pox_x, ROW_TO_Y(5) - 10, WHITE);
+    lcd_drawLine(info_ctrl.pox_x, ROW_TO_Y(5) - 10, info_ctrl.pox_x, ROW_TO_Y(5), WHITE);
+    lcd_drawLine(info_ctrl.pox_x, ROW_TO_Y(5), 60, ROW_TO_Y(5), WHITE);
+    lcd_drawLine(60, ROW_TO_Y(5), 60, ROW_TO_Y(5) - 10, WHITE);
+    lcd_drawLine(60, ROW_TO_Y(5) - 10 + 0, 70, ROW_TO_Y(5) - 10, WHITE);
+*/
+  lcd_drawLine(0, ROW_TO_Y(5) + 4, MAX_X, ROW_TO_Y(5) + 4, WHITE);
+  lcd_drawLine(0, ROW_TO_Y(5) + 5, MAX_X, ROW_TO_Y(5) + 5, WHITE);
 
-  SSD1306_SetPosition (80, 3);
-  SSD1306_DrawString ("f=10kHz");
+  lcd_charMode(NORMALSIZE);
+  lcd_gotoxy(2, 6);
+  lcd_puts(GIT_REPO_URL);
+  lcd_gotoxy(2, 7);
+  lcd_puts(GIT_VERSION);
 
-  SSD1306_DrawLine (0, MAX_X, ROW_TO_Y(5)+3, ROW_TO_Y(5)+3);
-  SSD1306_SetPosition (0, 6);
-  SSD1306_DrawString (GIT_REPO_URL);
-  //SSD1306_SetPosition (0, 6+2);
-  //SSD1306_DrawString (GIT_VERSION);*/
+  lcd_charMode(NORMALSIZE);
+  lcd_gotoxy(13, 4);
+  lcd_puts("f=10kHz");
 
   lcd_display();
   wdtTimer_StartTimeout(1, cEV_TIMER_INTERVAL_125MS, EV_DISPLAY,
@@ -77,37 +71,66 @@ void disp_draw_info(void)
 
 uint8_t disp_draw_update_info(void)
 {
-  /*SSD1306_ClearArea (30-1,60-1,ROW_TO_Y(3)+0, ROW_TO_Y(3)+8+1);
-  if(info_ctrl.step >= +1) {
-      info_ctrl.pox_x += info_ctrl.step;
-      if(info_ctrl.pox_x >= 50) {
-          // max
-          info_ctrl.step = -2;
-      }
+  lcd_fillRect(10 - 2, ROW_TO_Y(5) + 2, 70 + 2, ROW_TO_Y(5) - 11, BLACK);
+  if (info_ctrl.repeate == 0)
+  {
+    // do not draw, wait some time
+    if (info_ctrl.step)
+    {
+      info_ctrl.step--;
+      wdtTimer_StartTimeout(1, cEV_TIMER_INTERVAL_125MS, EV_DISPLAY,
+                            EV_DISPLAY_UPDATE_INFO);
+      return RET_AGAIN;
+    }
+    wdtTimer_StartTimeout(1, cEV_TIMER_INTERVAL_2S, EV_DISPLAY,
+                          EV_DISPLAY_NEXT);
+    return RET_STOP;
   }
-  else {
-      info_ctrl.pox_x += info_ctrl.step;
-      if(info_ctrl.pox_x <= 30) {
-          // max
-          info_ctrl.step = +2;
-          if(info_ctrl.repeate == 0) {
-              // done here
-              wdtTimer_StartTimeout(1, cEV_TIMER_INTERVAL_2S, EV_DISPLAY,
-  EV_DISPLAY_NEXT); return RET_STOP;
-          }
-          info_ctrl.repeate--;
+  if (info_ctrl.step >= +1)
+  {
+    info_ctrl.pox_x += info_ctrl.step;
+    if (info_ctrl.pox_x >= 50)
+    {
+      // max
+      info_ctrl.step = -2;
+    }
+  }
+  else
+  {
+    info_ctrl.pox_x += info_ctrl.step;
+    if (info_ctrl.pox_x <= 30)
+    {
+      // max
+      info_ctrl.step = +2;
+      if (info_ctrl.repeate == 0)
+      {
+        // done here
+        info_ctrl.step = 10;
+        wdtTimer_StartTimeout(1, cEV_TIMER_INTERVAL_125MS, EV_DISPLAY,
+                              EV_DISPLAY_UPDATE_INFO);
+        lcd_display();
+        return RET_AGAIN;
       }
+      else
+      {
+        info_ctrl.repeate--;
+      }
+    }
   }
 
-  SSD1306_DrawLine (20, info_ctrl.pox_x, ROW_TO_Y(3)+0, ROW_TO_Y(3)+0);
-  SSD1306_DrawLine (info_ctrl.pox_x, info_ctrl.pox_x, ROW_TO_Y(3)+0,
-  ROW_TO_Y(3)+8); SSD1306_DrawLine (info_ctrl.pox_x, 60, ROW_TO_Y(3)+8,
-  ROW_TO_Y(3)+8);
+  lcd_drawLine(10, ROW_TO_Y(5), 20, ROW_TO_Y(5), WHITE);
+  lcd_drawLine(20, ROW_TO_Y(5), 20, ROW_TO_Y(5) - 10, WHITE);
+  lcd_drawLine(20, ROW_TO_Y(5) - 10, info_ctrl.pox_x, ROW_TO_Y(5) - 10, WHITE);
+  lcd_drawLine(info_ctrl.pox_x, ROW_TO_Y(5) - 10, info_ctrl.pox_x, ROW_TO_Y(5), WHITE);
+  lcd_drawLine(info_ctrl.pox_x, ROW_TO_Y(5), 60, ROW_TO_Y(5), WHITE);
+  lcd_drawLine(60, ROW_TO_Y(5), 60, ROW_TO_Y(5) - 10, WHITE);
+  lcd_drawLine(60, ROW_TO_Y(5) - 10 + 0, 70, ROW_TO_Y(5) - 10, WHITE);
 
-  SSD1306_UpdateScreen (SSD1306_ADDRESS);
+  lcd_display();
+
   wdtTimer_StartTimeout(1, cEV_TIMER_INTERVAL_125MS, EV_DISPLAY,
-  EV_DISPLAY_UPDATE_INFO); return RET_AGAIN;
-  */
+                        EV_DISPLAY_UPDATE_INFO);
+  return RET_AGAIN;
 }
 
 // NORMALSIZE: x: 21 chars in 128 pixel, y: 8 lines in 64 pixel
@@ -130,10 +153,10 @@ void disp_draw_mark_position(uint8_t cx, uint8_t cy, uint8_t size)
   y0 = ((cy + 1) * font_size_height[size]) - 1;
   y1 = y0 - 1;
   lcd_drawRect(x0, y0, x1, y1, WHITE);
-  // lcd_drawRect(7*8-2, 4*8, 8*8+3, 4*8-1, WHITE);
 }
 
-static enum pwm_setup_steps {
+enum pwm_setup_steps
+{
   STEP_FREQ = 0,
   STEP_DUTY,
   STEP_SWEEP,

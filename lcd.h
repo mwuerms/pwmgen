@@ -45,91 +45,91 @@
 #define LCD_H
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
-    
+
 #if (__GNUC__ * 100 + __GNUC_MINOR__) < 303
 #error "This library requires AVR-GCC 3.3 or later, update to newer AVR-GCC compiler !"
 #endif
-    
+
 #include <inttypes.h>
 #include <avr/pgmspace.h>
 
-	/* TODO: define bus */
-#define I2C			// I2C or SPI	
+    /* TODO: define bus */
+#define I2C // I2C or SPI
     /* TODO: define displaycontroller */
-#define SSD1306                 // or SSD1306, check datasheet of your display
+#define SSD1306 // or SSD1306, check datasheet of your display
     /* TODO: define displaymode */
-#define GRAPHICMODE                // TEXTMODE for only text to display,
+#define GRAPHICMODE // TEXTMODE for only text to display,
     // GRAPHICMODE for text and graphic
     /* TODO: define font */
-#define FONT            ssd1306oled_font// set font here, refer font-name at font.h/font.c
-    
+#define FONT ssd1306oled_font // set font here, refer font-name at font.h/font.c
+
     /* TODO: define I2C-adress for display */
-    
+
     // using 7-bit-adress for lcd-library
     // if you use your own library for twi check I2C-adress-handle
-#define LCD_I2C_ADR         (0x78 >> 1)    // 7 bit slave-adress without r/w-bit
+#define LCD_I2C_ADR (0x78 >> 1) // 7 bit slave-adress without r/w-bit
     // r/w-bit are set/unset by library
     // e.g. 8 bit slave-adress:
     // 0x78 = adress 0x3C with cleared r/w-bit (write-mode)
 
-    
 #ifdef I2C
-#include "i2c.h"	// library for I2C-communication
+#include "i2c.h" // library for I2C-communication
     // if you want to use other lib for I2C
     // edit i2c_xxx commands in this library
     // i2c_start(), i2c_byte(), i2c_stop()
-    
+
 #elif defined SPI
-	// if you want to use your other lib/function for SPI replace SPI-commands
-#define LCD_PORT	PORTB
-#define LCD_DDR		DDRB
-#define RES_PIN		PB0
-#define DC_PIN		PB1
-#define CS_PIN		PB2
+// if you want to use your other lib/function for SPI replace SPI-commands
+#define LCD_PORT PORTB
+#define LCD_DDR DDRB
+#define RES_PIN PB0
+#define DC_PIN PB1
+#define CS_PIN PB2
 
 #endif
 
 #ifndef YES
-#define YES        1
+#define YES 1
 #endif
 
 #define NORMALSIZE 1
 #define DOUBLESIZE 2
-    
-#define LCD_DISP_OFF        0xAE
-#define LCD_DISP_ON        0xAF
-    
-#define WHITE            0x01
-#define BLACK            0x00
-    
-#define DISPLAY_WIDTH        128
-#define DISPLAY_HEIGHT        64
-#define MAX_X   (DISPLAY_WIDTH-1)
-#define MAX_Y   (DISPLAY_HEIGHT-1)
-#define ROW_TO_Y(y)    (8*y)    
-    
-    void lcd_command(uint8_t cmd[], uint8_t size);    // transmit command to display
-    void lcd_data(uint8_t data[], uint16_t size);    // transmit data to display
+
+#define LCD_DISP_OFF 0xAE
+#define LCD_DISP_ON 0xAF
+
+#define WHITE 0x01
+#define BLACK 0x00
+
+#define DISPLAY_WIDTH 128
+#define DISPLAY_HEIGHT 64
+#define MAX_X (DISPLAY_WIDTH - 1)
+#define MAX_Y (DISPLAY_HEIGHT - 1)
+#define ROW_TO_Y(y) (8 * y)
+
+    void lcd_command(uint8_t cmd[], uint8_t size); // transmit command to display
+    void lcd_data(uint8_t data[], uint16_t size);  // transmit data to display
     void lcd_init(uint8_t dispAttr);
-    void lcd_home(void);                            // set cursor to 0,0
-    void lcd_invert(uint8_t invert);        // invert display
-    void lcd_sleep(uint8_t sleep);            // display goto sleep (power off)
-    void lcd_set_contrast(uint8_t contrast);    // set contrast for display
-    void lcd_puts(const char* s);            // print string, \n-terminated, from ram on screen (TEXTMODE)
+    void lcd_home(void);                     // set cursor to 0,0
+    void lcd_invert(uint8_t invert);         // invert display
+    void lcd_sleep(uint8_t sleep);           // display goto sleep (power off)
+    void lcd_set_contrast(uint8_t contrast); // set contrast for display
+    void lcd_puts(const char *s);            // print string, \n-terminated, from ram on screen (TEXTMODE)
     // or buffer (GRAPHICMODE)
-    void lcd_puts_p(const char* progmem_s);        // print string from flash on screen (TEXTMODE)
+    void lcd_puts_p(const char *progmem_s); // print string from flash on screen (TEXTMODE)
     // or buffer (GRAPHICMODE)
-    
-    void lcd_clrscr(void);                // clear screen (and buffer at GRFAICMODE)
-    void lcd_gotoxy(uint8_t x, uint8_t y);        // set curser at pos x, y. x means character,
+
+    void lcd_clrscr(void);                 // clear screen (and buffer at GRFAICMODE)
+    void lcd_gotoxy(uint8_t x, uint8_t y); // set curser at pos x, y. x means character,
     // y means line (page, refer lcd manual)
     void lcd_goto_xpix_y(uint8_t x, uint8_t y); // set curser at pos x, y. x means pixel,
     // y means line (page, refer lcd manual)
-    void lcd_putc(char c);                // print character on screen at TEXTMODE
+    void lcd_putc(char c); // print character on screen at TEXTMODE
     // at GRAPHICMODE print character to buffer
-    void lcd_charMode(uint8_t mode);            // set size of chars
+    void lcd_charMode(uint8_t mode); // set size of chars
 #if defined GRAPHICMODE
     uint8_t lcd_drawPixel(uint8_t x, uint8_t y, uint8_t color);
     uint8_t lcd_drawLine(uint8_t x1, uint8_t y1, uint8_t x2, uint8_t y2, uint8_t color);
@@ -138,12 +138,12 @@ extern "C" {
     uint8_t lcd_drawCircle(uint8_t center_x, uint8_t center_y, uint8_t radius, uint8_t color);
     uint8_t lcd_fillCircle(uint8_t center_x, uint8_t center_y, uint8_t radius, uint8_t color);
     uint8_t lcd_drawBitmap(uint8_t x, uint8_t y, const uint8_t picture[], uint8_t width, uint8_t height, uint8_t color);
-    void lcd_display(void);                // copy buffer to display RAM
-    void lcd_clear_buffer(void); // clear display buffer
-    uint8_t lcd_check_buffer(uint8_t x, uint8_t y); // read a pixel value from the display buffer
+    void lcd_display(void);                                         // copy buffer to display RAM
+    void lcd_clear_buffer(void);                                    // clear display buffer
+    uint8_t lcd_check_buffer(uint8_t x, uint8_t y);                 // read a pixel value from the display buffer
     void lcd_display_block(uint8_t x, uint8_t line, uint8_t width); // display (part of) a display line
 #endif
-    
+
 #ifdef __cplusplus
 }
 #endif
