@@ -38,6 +38,7 @@ int main(void)
     sleep_mode_init();
     use_sleep_mode(ACTIVE);
 
+    buttons_init();
     disp_init();
     disp_show_info();
     // disp_show_pwm_setup();

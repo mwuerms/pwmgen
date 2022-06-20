@@ -23,4 +23,6 @@ void disp_draw_pwm_setup(void);
 void disp_draw_test_label(void);
 void disp_draw_test_pwm(void);
 
+void disp_draw_button(void);
+
 #endif /* _DISP_DRAW_H_ */

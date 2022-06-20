@@ -11,6 +11,7 @@
 #include "version.h"
 #include "wdt.h"
 #include <stdint.h>
+#include "buttons.h"
 
 void disp_draw_init(void)
 {
@@ -231,6 +232,38 @@ static char *uint16_t_to_str(uint16_t u16, uint8_t nb_digits)
   return u16_str;
 }
 
+static char *int8_t_to_str(int8_t i8, uint8_t nb_digits)
+{
+  uint16_t divisor[] = {1, 10, 100};
+  uint8_t digit, digit_pos, str_pos, space;
+  space = 1;
+  str_pos = 0;
+  if (i8 < 0)
+  {
+    u16_str[str_pos++] = '-';
+  }
+  for (digit_pos = nb_digits - 1; digit_pos != 0; digit_pos--)
+  {
+    digit = (uint8_t)(i8 / divisor[digit_pos]);
+    if ((digit == 0) && (space == 1))
+    {
+      // skip
+      u16_str[str_pos++] = ' ';
+      continue;
+    }
+    else
+    {
+      space = 0;
+      u16_str[str_pos++] = digit + '0';
+      i8 = i8 - (digit * divisor[digit_pos]);
+    }
+  }
+  digit = (uint8_t)i8;
+  u16_str[str_pos++] = digit + '0';
+  u16_str[str_pos++] = '\0';
+  return u16_str;
+}
+
 static void frequency_to_line(void)
 {
   char *res_str;
@@ -343,5 +376,40 @@ void disp_draw_pwm_setup(void)
     disp_draw_mark_position((DUTY_POS_0 - pwm_settings.duty_pos), 4, DOUBLESIZE);
     break;
   }
+  lcd_display();
+}
+
+void disp_draw_button(void)
+{
+  uint8_t b0, b1;
+  int8_t w0;
+  char *res;
+  b0 = button_on_cnt;
+  b1 = button_wheel_cnt;
+  w0 = wheel_cnt;
+
+  disp_draw_clear();
+  lcd_charMode(NORMALSIZE);
+  lcd_gotoxy(0, 0);
+  lcd_puts("Buttons");
+
+  lcd_gotoxy(1, 1);
+  lcd_puts("PIN_BUTTON_ON_OFF");
+  lcd_gotoxy(2, 2);
+  res = int8_t_to_str(b0, 3);
+  lcd_puts(res);
+
+  lcd_gotoxy(1, 3);
+  lcd_puts("PIN_BUTTON_WHEEL");
+  lcd_gotoxy(2, 4);
+  res = int8_t_to_str(b1, 3);
+  lcd_puts(res);
+
+  lcd_gotoxy(1, 5);
+  lcd_puts("PIN_WHEEL");
+  lcd_gotoxy(2, 6);
+  res = int8_t_to_str(w0, 3);
+  lcd_puts(res);
+
   lcd_display();
 }

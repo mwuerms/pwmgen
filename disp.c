@@ -36,5 +36,12 @@ void disp_process_events(uint8_t events, uint8_t detail_events)
       disp_draw_pwm_setup();
     }
   }
+  if (events & EV_BUTTON)
+  {
+    if (detail_events & EV_BUTTON_UPDATE)
+    {
+      disp_draw_button();
+    }
+  }
   return;
 }
