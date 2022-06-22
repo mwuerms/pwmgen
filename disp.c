@@ -42,6 +42,18 @@ static void switch_menu(uint8_t next_menu, uint8_t prev_menu)
   wheel_cnt = 0;
 }
 
+static uint8_t next_position(uint8_t curr_pos, uint8_t min_pos, uint8_t max_pos)
+{
+  if (curr_pos == ITEM_POS)
+  {
+    return min_pos;
+  }
+  else if (curr_pos >= max_pos)
+  {
+    return ITEM_POS;
+  }
+  return curr_pos + 1;
+}
 void disp_update_pwm_setup(uint8_t button_events)
 {
   if ((disp_flags & DISP_FLAG_PWM_SETUP_ENABLE) == 0)
@@ -67,6 +79,10 @@ void disp_update_pwm_setup(uint8_t button_events)
         switch_menu(MENU_ITEM_DUTY, MENU_ITEM_SWEEP);
       }
     }
+    if (button_events & EV_BUTTON_BTN_WHEEL)
+    {
+      pwm_settings.freq_pos = next_position(pwm_settings.freq_pos, 0, 5);
+    }
     break;
   case MENU_ITEM_DUTY:
     if (button_events & EV_BUTTON_WHEEL)
@@ -75,6 +91,10 @@ void disp_update_pwm_setup(uint8_t button_events)
       {
         switch_menu(MENU_ITEM_SWEEP, MENU_ITEM_FREQ);
       }
+    }
+    if (button_events & EV_BUTTON_BTN_WHEEL)
+    {
+      pwm_settings.duty_pos = next_position(pwm_settings.duty_pos, 0, 4);
     }
     break;
   case MENU_ITEM_SWEEP:
