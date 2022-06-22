@@ -5,16 +5,17 @@
  */
 
 /* - includes --------------------------------------------------------------- */
+#include <stdint.h>
+#include "project.h"
 #include "disp.h"
 #include "disp_draw.h"
-#include "project.h"
-#include <stdint.h>
+#include "buttons.h"
 
 pwm_settings_t pwm_settings = {
     .freq = 6543,
-    .freq_pos = 0,
+    .freq_pos = ITEM_POS,
     .duty = 789,
-    .duty_pos = 0,
+    .duty_pos = ITEM_POS,
     .status = 0,
     .item = ITEM_FREQ,
 };
@@ -41,24 +42,61 @@ void disp_update_pwm_setup(uint8_t button_events)
     else
       pwm_settings.status |= PWM_STATUS_ON;
   }
+
   switch (pwm_settings.item)
   {
   case ITEM_FREQ:
     if (button_events & EV_BUTTON_WHEEL)
     {
-      pwm_settings.item = ITEM_DUTY;
+      if (pwm_settings.freq_pos == ITEM_POS)
+      {
+        if (wheel_cnt > 0)
+        {
+          // +: next
+          pwm_settings.item = ITEM_DUTY;
+        }
+        else
+        {
+          // -: prev
+          pwm_settings.item = ITEM_SWEEP;
+        }
+        wheel_cnt = 0;
+      }
     }
     break;
   case ITEM_DUTY:
     if (button_events & EV_BUTTON_WHEEL)
     {
-      pwm_settings.item = ITEM_SWEEP;
+      if (pwm_settings.duty_pos == ITEM_POS)
+      {
+        if (wheel_cnt > 0)
+        {
+          // +: next
+          pwm_settings.item = ITEM_SWEEP;
+        }
+        else
+        {
+          // -: prev
+          pwm_settings.item = ITEM_FREQ;
+        }
+        wheel_cnt = 0;
+      }
     }
     break;
   case ITEM_SWEEP:
     if (button_events & EV_BUTTON_WHEEL)
     {
-      pwm_settings.item = ITEM_FREQ;
+      if (wheel_cnt > 0)
+      {
+        // +: next
+        pwm_settings.item = ITEM_FREQ;
+      }
+      else
+      {
+        // -: prev
+        pwm_settings.item = ITEM_DUTY;
+      }
+      wheel_cnt = 0;
     }
     break;
   }

@@ -34,8 +34,9 @@ typedef struct
     uint8_t status;
     pwm_setup_items_t item;
 } pwm_settings_t;
-#define FREQ_POS_0 (5)
+#define FREQ_POS_0 (6)
 #define DUTY_POS_0 (6)
+#define ITEM_POS (255)
 
 #define PWM_STATUS_ON _BV(0) // =1: ON, =0: OFF
 

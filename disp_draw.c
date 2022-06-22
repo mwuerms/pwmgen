@@ -294,6 +294,16 @@ static void frequency_to_line(char *num_str)
   stringcopyn(&line[2 + 5], " Hz", LINE_SIZE);
 }
 
+static uint8_t calc_freq_focus_pos(uint8_t pos)
+{
+  if (pos == ITEM_POS)
+  {
+    return 0;
+  }
+  //"  10000 Hz"
+  return FREQ_POS_0 - pos;
+}
+
 static void frequency_small_to_line(char *num_str)
 {
   //"Freq:10000 Hz"
@@ -311,6 +321,20 @@ static void duty_to_line(char *num_str)
   stringcopyn(&line[2 + 5], " %", LINE_SIZE);
 }
 
+static uint8_t calc_duty_focus_pos(uint8_t pos)
+{
+  if (pos == ITEM_POS)
+  {
+    return 0;
+  }
+  // "    0.0 %"
+  if (pos == (DUTY_POS_0 - 1))
+  {
+    return DUTY_POS_0;
+  }
+  return DUTY_POS_0 - pos;
+}
+
 static void duty_small_to_line(char *num_str)
 {
   //"Duty:   0.0%"
@@ -321,10 +345,6 @@ static void duty_small_to_line(char *num_str)
 
 void disp_draw_pwm_setup(pwm_settings_t *ps)
 {
-  // no need to clear display when only showing text because of "footprint" of the characters?
-  // "footprint": eg. 8x8 pixel containing whole character AND background
-  //              -> it will draw over existing pixels
-
   // preparation convert numbers into strings
   lcd_clear_buffer();
   convert_freq_to_str(ps->freq); // result in char freq_str[]
@@ -356,7 +376,7 @@ void disp_draw_pwm_setup(pwm_settings_t *ps)
     lcd_puts("Duty cycle");
     lcd_gotoxy(0, 4);
     lcd_puts(">");
-    disp_draw_mark_position((FREQ_POS_0 - ps->freq_pos), 4, DOUBLESIZE);
+    disp_draw_mark_position(calc_freq_focus_pos(ps->freq_pos), 4, DOUBLESIZE);
     break;
   case ITEM_DUTY:
     lcd_gotoxy(0, 2);
@@ -368,7 +388,7 @@ void disp_draw_pwm_setup(pwm_settings_t *ps)
     lcd_puts("Sweep");
     lcd_gotoxy(0, 4);
     lcd_puts(">");
-    disp_draw_mark_position((DUTY_POS_0 - ps->duty_pos), 4, DOUBLESIZE);
+    disp_draw_mark_position(calc_duty_focus_pos(ps->duty_pos), 4, DOUBLESIZE);
     break;
   case ITEM_SWEEP:
   default:
@@ -381,7 +401,7 @@ void disp_draw_pwm_setup(pwm_settings_t *ps)
     lcd_puts("Frequency");
     lcd_gotoxy(0, 4);
     lcd_puts(">");
-    disp_draw_mark_position((DUTY_POS_0 - ps->duty_pos), 4, DOUBLESIZE);
+    disp_draw_mark_position(0, 4, DOUBLESIZE);
     break;
   }
   lcd_display();
