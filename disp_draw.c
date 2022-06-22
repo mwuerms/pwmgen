@@ -157,8 +157,7 @@ void disp_draw_mark_position(uint8_t cx, uint8_t cy, uint8_t size)
 }
 
 // defined and temporary strings to show values on display
-#define PWM_STATUS_ON _BV(0) // =1: ON, =0: OFF
-static char pwm_status_text[][4] = {"OFF", "ON"};
+static char pwm_status_text[][4] = {"OFF", "ON "};
 
 #define LINE_SIZE (23)
 static char line[LINE_SIZE + 1]; // +1: '\0' at the end
@@ -270,32 +269,32 @@ static void frequency_to_line(char *num_str)
 {
   stringcopyn(line, "      0 Hz", LINE_SIZE);
   stringcopyn(&line[3], num_str, LINE_SIZE);
-  stringcopyn(&line[3 + 4], " Hz", LINE_SIZE);
+  stringcopyn(&line[3 + 5], " Hz", LINE_SIZE);
 }
 
 static void frequency_small_to_line(char *num_str)
 {
   stringcopyn(line, "Freq:    0Hz", LINE_SIZE);
   stringcopyn(&line[6], num_str, LINE_SIZE);
-  stringcopyn(&line[6 + 4], " Hz", LINE_SIZE);
+  stringcopyn(&line[6 + 5], " Hz", LINE_SIZE);
 }
 
 static void duty_to_line(char *num_str)
 {
   stringcopyn(line, "    0.0 %", LINE_SIZE);
   stringcopyn(&line[3], num_str, LINE_SIZE);
-  stringcopyn(&line[3 + 2], ".", LINE_SIZE);
-  stringcopyn(&line[3 + 3], &num_str[2], LINE_SIZE);
-  stringcopyn(&line[3 + 4], " %", LINE_SIZE);
+  stringcopyn(&line[3 + 3], ".", LINE_SIZE);
+  stringcopyn(&line[3 + 4], &num_str[3], LINE_SIZE);
+  stringcopyn(&line[3 + 5], " %", LINE_SIZE);
 }
 
 static void duty_small_to_line(char *num_str)
 {
   stringcopyn(line, "Duty:   0.0%", LINE_SIZE);
   stringcopyn(&line[6], num_str, LINE_SIZE);
-  stringcopyn(&line[6 + 2], ".", LINE_SIZE);
-  stringcopyn(&line[6 + 3], &num_str[2], LINE_SIZE);
-  stringcopyn(&line[6 + 4], " %", LINE_SIZE);
+  stringcopyn(&line[6 + 3], ".", LINE_SIZE);
+  stringcopyn(&line[6 + 4], &num_str[3], LINE_SIZE);
+  stringcopyn(&line[6 + 5], " %", LINE_SIZE);
 }
 
 void disp_draw_pwm_setup(pwm_settings_t *ps)

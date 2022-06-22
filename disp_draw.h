@@ -37,6 +37,8 @@ typedef struct
 #define FREQ_POS_0 (5)
 #define DUTY_POS_0 (6)
 
+#define PWM_STATUS_ON _BV(0) // =1: ON, =0: OFF
+
 void disp_draw_pwm_setup(pwm_settings_t *ps);
 void disp_draw_button(void);
 
