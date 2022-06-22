@@ -40,6 +40,5 @@ typedef struct
 #define PWM_STATUS_ON _BV(0) // =1: ON, =0: OFF
 
 void disp_draw_pwm_setup(pwm_settings_t *ps);
-void disp_draw_button(void);
 
 #endif /* _DISP_DRAW_H_ */

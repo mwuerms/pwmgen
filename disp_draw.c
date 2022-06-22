@@ -179,26 +179,38 @@ void stringcopyn(char *to, char *from, uint8_t max_size)
   to[n] = '\0'; // termination
 }
 
+uint8_t stringlen(char *str)
+{
+  uint8_t n;
+  for (n = 0; n < 254; n++)
+  {
+    if (str[n] == '\0')
+    {
+      break;
+    }
+  }
+  return n;
+}
+
+static const uint16_t dec_divisor[] = {1, 10, 100, 1000, 10000};
 static char *uint16_t_to_str(char *dest, uint16_t u16, uint8_t nb_digits)
 {
-  uint16_t divisor[] = {1, 10, 100, 1000, 10000};
   uint8_t digit, digit_pos, str_pos, space;
   space = 1;
   str_pos = 0;
   for (digit_pos = nb_digits - 1; digit_pos != 0; digit_pos--)
   {
-    digit = (uint8_t)(u16 / divisor[digit_pos]);
+    digit = (uint8_t)(u16 / dec_divisor[digit_pos]);
     if ((digit == 0) && (space == 1))
     {
       // skip
       dest[str_pos++] = ' ';
-      continue;
     }
     else
     {
       space = 0;
       dest[str_pos++] = digit + '0';
-      u16 = u16 - (digit * divisor[digit_pos]);
+      u16 = u16 - (digit * dec_divisor[digit_pos]);
     }
   }
   digit = (uint8_t)u16;
@@ -209,7 +221,6 @@ static char *uint16_t_to_str(char *dest, uint16_t u16, uint8_t nb_digits)
 
 static char *int8_t_to_str(char *dest, int8_t i8, uint8_t nb_digits)
 {
-  uint16_t divisor[] = {1, 10, 100};
   uint8_t u8, digit, digit_pos, str_pos, space;
   space = 1;
   str_pos = 0;
@@ -225,18 +236,17 @@ static char *int8_t_to_str(char *dest, int8_t i8, uint8_t nb_digits)
   }
   for (digit_pos = nb_digits - 1; digit_pos != 0; digit_pos--)
   {
-    digit = (uint8_t)(u8 / divisor[digit_pos]);
+    digit = (uint8_t)(u8 / dec_divisor[digit_pos]);
     if ((digit == 0) && (space == 1))
     {
       // skip
       dest[str_pos++] = ' ';
-      continue;
     }
     else
     {
       space = 0;
       dest[str_pos++] = digit + '0';
-      u8 = u8 - (digit * divisor[digit_pos]);
+      u8 = u8 - (digit * dec_divisor[digit_pos]);
     }
   }
   digit = (uint8_t)u8;
@@ -245,55 +255,67 @@ static char *int8_t_to_str(char *dest, int8_t i8, uint8_t nb_digits)
   return dest;
 }
 
-convert_freq_to_str(uint16_t freq)
+static void convert_freq_to_str(uint16_t freq)
 {
-  if (freq == 10000)
+  if (freq >= 10000)
   {
     // special case
     stringcopyn(freq_str, "10000", 6);
+    return;
   }
   uint16_t_to_str(freq_str, freq, 4);
 }
 
-convert_duty_to_str(uint16_t duty)
+static void convert_duty_to_str(uint16_t duty)
 {
-  if (duty == 1000)
+  if (duty >= 1000)
   {
     // special case
-    stringcopyn(duty_str, "1000", 6);
+    stringcopyn(duty_str, "100.0", 6);
+    return;
   }
   uint16_t_to_str(duty_str, duty, 4);
+  // add "." to get format "xxx.x", smallest = "  0.0"
+  duty_str[5] = '\0';
+  duty_str[4] = duty_str[3];
+  duty_str[3] = '.';
+  if (duty < 10)
+  {
+    duty_str[2] = '0';
+  }
 }
 
 static void frequency_to_line(char *num_str)
 {
+  //"  10000 Hz"
+  uint8_t num_len = stringlen(num_str);
   stringcopyn(line, "      0 Hz", LINE_SIZE);
-  stringcopyn(&line[3], num_str, LINE_SIZE);
-  stringcopyn(&line[3 + 5], " Hz", LINE_SIZE);
+  stringcopyn(&line[2 + 5 - num_len], num_str, LINE_SIZE);
+  stringcopyn(&line[2 + 5], " Hz", LINE_SIZE);
 }
 
 static void frequency_small_to_line(char *num_str)
 {
+  //"Freq:10000 Hz"
+  uint8_t num_len = stringlen(num_str);
   stringcopyn(line, "Freq:    0Hz", LINE_SIZE);
-  stringcopyn(&line[6], num_str, LINE_SIZE);
-  stringcopyn(&line[6 + 5], " Hz", LINE_SIZE);
+  stringcopyn(&line[5 + 5 - num_len], num_str, LINE_SIZE);
+  stringcopyn(&line[5 + 5], " Hz", LINE_SIZE);
 }
 
 static void duty_to_line(char *num_str)
 {
+  // "    0.0 %"
   stringcopyn(line, "    0.0 %", LINE_SIZE);
-  stringcopyn(&line[3], num_str, LINE_SIZE);
-  stringcopyn(&line[3 + 3], ".", LINE_SIZE);
-  stringcopyn(&line[3 + 4], &num_str[3], LINE_SIZE);
-  stringcopyn(&line[3 + 5], " %", LINE_SIZE);
+  stringcopyn(&line[2], num_str, LINE_SIZE);
+  stringcopyn(&line[2 + 5], " %", LINE_SIZE);
 }
 
 static void duty_small_to_line(char *num_str)
 {
+  //"Duty:   0.0%"
   stringcopyn(line, "Duty:   0.0%", LINE_SIZE);
   stringcopyn(&line[6], num_str, LINE_SIZE);
-  stringcopyn(&line[6 + 3], ".", LINE_SIZE);
-  stringcopyn(&line[6 + 4], &num_str[3], LINE_SIZE);
   stringcopyn(&line[6 + 5], " %", LINE_SIZE);
 }
 
@@ -304,9 +326,7 @@ void disp_draw_pwm_setup(pwm_settings_t *ps)
   //              -> it will draw over existing pixels
 
   // preparation convert numbers into strings
-
-  duty_str[8];
-
+  lcd_clear_buffer();
   convert_freq_to_str(ps->freq); // result in char freq_str[]
   convert_duty_to_str(ps->duty); // result in char duty_str[]
 
@@ -339,12 +359,23 @@ void disp_draw_pwm_setup(pwm_settings_t *ps)
     disp_draw_mark_position((FREQ_POS_0 - ps->freq_pos), 4, DOUBLESIZE);
     break;
   case ITEM_DUTY:
-  default:
-    ps->item = ITEM_DUTY;
     lcd_gotoxy(0, 2);
     lcd_puts("Duty cycle");
     lcd_gotoxy(0, 4);
     duty_to_line(duty_str);
+    lcd_puts(line);
+    lcd_gotoxy(0, 6);
+    lcd_puts("Sweep");
+    lcd_gotoxy(0, 4);
+    lcd_puts(">");
+    disp_draw_mark_position((DUTY_POS_0 - ps->duty_pos), 4, DOUBLESIZE);
+    break;
+  case ITEM_SWEEP:
+  default:
+    lcd_gotoxy(0, 2);
+    lcd_puts("Sweep");
+    lcd_gotoxy(0, 4);
+    duty_to_line(1234);
     lcd_puts(line);
     lcd_gotoxy(0, 6);
     lcd_puts("Frequency");
@@ -353,40 +384,5 @@ void disp_draw_pwm_setup(pwm_settings_t *ps)
     disp_draw_mark_position((DUTY_POS_0 - ps->duty_pos), 4, DOUBLESIZE);
     break;
   }
-  lcd_display();
-}
-
-void disp_draw_button(void)
-{
-  uint8_t b0, b1;
-  int8_t w0;
-  char *res;
-  b0 = button_on_cnt;
-  b1 = button_wheel_cnt;
-  w0 = wheel_cnt;
-
-  disp_draw_clear();
-  lcd_charMode(NORMALSIZE);
-  lcd_gotoxy(0, 0);
-  lcd_puts("Buttons");
-
-  lcd_gotoxy(1, 1);
-  lcd_puts("PIN_BUTTON_ON_OFF");
-  lcd_gotoxy(2, 2);
-  res = int8_t_to_str(line, b0, 3);
-  lcd_puts(res);
-
-  lcd_gotoxy(1, 3);
-  lcd_puts("PIN_BUTTON_WHEEL");
-  lcd_gotoxy(2, 4);
-  res = int8_t_to_str(line, b1, 3);
-  lcd_puts(res);
-
-  lcd_gotoxy(1, 5);
-  lcd_puts("PIN_WHEEL");
-  lcd_gotoxy(2, 6);
-  res = int8_t_to_str(line, w0, 3);
-  lcd_puts(res);
-
   lcd_display();
 }

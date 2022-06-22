@@ -11,9 +11,9 @@
 #include <stdint.h>
 
 pwm_settings_t pwm_settings = {
-    .freq = 10000,
+    .freq = 6543,
     .freq_pos = 0,
-    .duty = 1000,
+    .duty = 789,
     .duty_pos = 0,
     .status = 0,
     .item = ITEM_FREQ,
