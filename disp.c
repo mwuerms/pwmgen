@@ -10,6 +10,7 @@
 #include "disp.h"
 #include "disp_draw.h"
 #include "buttons.h"
+#include "pwm.h"
 
 pwm_settings_t pwm_settings = {
     .freq = 6543,
@@ -65,8 +66,8 @@ void calc_new_frequency(void)
     new_value = pwm_settings.freq - decimal_place[pwm_settings.freq_pos];
   }
   wheel_cnt = 0;
-  if (new_value > 10000)
-    new_value = 10000;
+  if (new_value > PWM_MAX_FREQUENCY)
+    new_value = PWM_MAX_FREQUENCY;
   if (new_value < 0)
     new_value = 0;
   pwm_settings.freq = new_value;
@@ -84,8 +85,8 @@ void calc_new_duty(void)
     new_value = pwm_settings.duty - decimal_place[pwm_settings.duty_pos];
   }
   wheel_cnt = 0;
-  if (new_value > 1000)
-    new_value = 1000;
+  if (new_value > PWM_MAX_PULSE_WIDTH)
+    new_value = PWM_MAX_PULSE_WIDTH;
   if (new_value < 0)
     new_value = 0;
   pwm_settings.duty = new_value;
@@ -101,9 +102,15 @@ void disp_update_pwm_setup(uint8_t button_events)
   if (button_events & EV_BUTTON_BTN_ON)
   {
     if (pwm_settings.status & PWM_STATUS_ON)
+    {
       pwm_settings.status &= ~PWM_STATUS_ON;
+      pwm_stop();
+    }
     else
+    {
       pwm_settings.status |= PWM_STATUS_ON;
+      pwm_start(pwm_settings.freq, pwm_settings.duty);
+    }
   }
 
   switch (pwm_settings.menu)
@@ -118,6 +125,7 @@ void disp_update_pwm_setup(uint8_t button_events)
       else
       {
         calc_new_frequency();
+        pwm_start(pwm_settings.freq, pwm_settings.duty);
       }
     }
     if (button_events & EV_BUTTON_BTN_WHEEL)
@@ -135,6 +143,7 @@ void disp_update_pwm_setup(uint8_t button_events)
       else
       {
         calc_new_duty();
+        pwm_start(pwm_settings.freq, pwm_settings.duty);
       }
     }
     if (button_events & EV_BUTTON_BTN_WHEEL)
