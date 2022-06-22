@@ -38,10 +38,8 @@ void disp_process_events(uint8_t events, uint8_t detail_events)
   }
   if (events & EV_BUTTON)
   {
-    if (detail_events & EV_BUTTON_UPDATE)
-    {
-      disp_draw_button();
-    }
+    // if (detail_events & (EV_BUTTON_BTN_ON_OFF | EV_BUTTON_BTN_WHEEL | EV_BUTTON_WHEEL)
+    disp_draw_button();
   }
   return;
 }

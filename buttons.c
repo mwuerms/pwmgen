@@ -19,12 +19,56 @@ volatile uint8_t button_on_cnt;
 volatile uint8_t button_wheel_cnt;
 volatile int8_t wheel_cnt;
 
-// PCINT8, 9, 10, 11
+ISR(INT0_vect)
+{
+  button_on_cnt++;
+  SEND_EVENT(EV_BUTTON);
+  SEND_BUTTON_EVENT(EV_BUTTON_BTN_ON_OFF);
+}
+
+ISR(INT1_vect)
+{
+  button_wheel_cnt++;
+  SEND_EVENT(EV_BUTTON);
+  SEND_BUTTON_EVENT(EV_BUTTON_BTN_WHEEL);
+}
+
+// PCINT8, 9
 ISR(PCINT1_vect)
 {
-  uint8_t change = 0;
+  uint8_t wheel_in = PINC & (_BV(PIN_WHEEL_A) | _BV(PIN_WHEEL_B));
   cli();
-  if ((PINC & _BV(PIN_BUTTON_ON_OFF)) == 0)
+
+  if ((wheel_in & _BV(PIN_WHEEL_A)) == 0)
+  {
+    if ((wheel_in & _BV(PIN_WHEEL_B)) == 0)
+    {
+      wheel_cnt++;
+    }
+    else
+    {
+      wheel_cnt--;
+    }
+  }
+  else
+  {
+    if ((wheel_in & _BV(PIN_WHEEL_B)) == 0)
+    {
+      wheel_cnt--;
+    }
+    else
+    {
+      wheel_cnt++;
+    }
+  }
+  SEND_EVENT(EV_BUTTON);
+  SEND_BUTTON_EVENT(EV_BUTTON_WHEEL);
+
+  sei();
+}
+
+/*
+if ((PINC & _BV(PIN_BUTTON_ON_OFF)) == 0)
   {
     // pressed
     button_on_cnt++;
@@ -36,49 +80,23 @@ ISR(PCINT1_vect)
     button_wheel_cnt++;
     change = 1;
   }
-  if ((PINC & _BV(PIN_WHEEL_A)) == 0)
-  {
-    if ((PINC & _BV(PIN_WHEEL_B)) == 0)
-    {
-      wheel_cnt++;
-      change = 1;
-    }
-    else
-    {
-      wheel_cnt--;
-      change = 1;
-    }
-  }
-  else
-  {
-    if ((PINC & _BV(PIN_WHEEL_B)) == 0)
-    {
-      wheel_cnt--;
-      change = 1;
-    }
-    else
-    {
-      wheel_cnt++;
-      change = 1;
-    }
-  }
-  if (change)
-  {
-    SEND_EVENT(EV_BUTTON);
-    SEND_BUTTON_EVENT(EV_BUTTON_UPDATE);
-  }
-  sei();
-}
-
+*/
 void buttons_init(void)
 {
-  // gpios
-  DDRC &= ~(_BV(PIN_BUTTON_ON_OFF) | _BV(PIN_BUTTON_WHEEL) | _BV(PIN_WHEEL_A) | _BV(PIN_WHEEL_B));
-  PCIFR |= _BV(PCIF1); // clear
-  PCICR |= _BV(PCIE1);
-  PCMSK1 |= (_BV(PCINT8) | _BV(PCINT9) | _BV(PCINT10));
   // vars
   button_on_cnt = 0;
   button_wheel_cnt = 0;
   wheel_cnt = 0;
+
+  // gpios
+  DDRD &= ~(_BV(PIN_BUTTON_ON_OFF) | _BV(PIN_BUTTON_WHEEL));
+  EICRA = (_BV(ISC11) | _BV(ISC01)); // INT0, INT1 on falling edge = button pressed
+  EIFR = (_BV(INTF0) | _BV(INTF1));
+  EIMSK = (_BV(INT0) | _BV(INT1));
+
+  // wheel (rotary encoder)
+  DDRC &= ~(_BV(PIN_WHEEL_A) | _BV(PIN_WHEEL_B));
+  PCIFR |= _BV(PCIF1); // clear
+  PCICR |= _BV(PCIE1);
+  PCMSK1 |= (_BV(PCINT8));
 }

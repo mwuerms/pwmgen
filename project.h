@@ -36,7 +36,9 @@ extern volatile uint8_t global_display_events;
 #define EV_DISPLAY_UPDATE_PWM _BV(2)
 
 extern volatile uint8_t global_button_events;
-#define EV_BUTTON_UPDATE _BV(0)
+#define EV_BUTTON_BTN_ON_OFF _BV(0)
+#define EV_BUTTON_BTN_WHEEL _BV(1)
+#define EV_BUTTON_WHEEL _BV(2)
 
 #define SEND_EVENT(ev) global_events |= ev
 #define SEND_DISPLAY_EVENT(ev) global_display_events |= ev
