@@ -41,10 +41,8 @@ int main(void)
     buttons_init();
     disp_init();
     disp_show_info();
-    // disp_show_pwm_setup();
 
     pwm_init();
-    pwm_start(250, 320);
     sei();
 
     // event loop

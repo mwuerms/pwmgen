@@ -13,9 +13,9 @@
 #include "pwm.h"
 
 pwm_settings_t pwm_settings = {
-    .freq = 6543,
+    .freq = 100,
     .freq_pos = MENU_POS,
-    .duty = 789,
+    .duty = 50,
     .duty_pos = MENU_POS,
     .status = 0,
     .menu = MENU_ITEM_FREQ,
