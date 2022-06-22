@@ -156,37 +156,14 @@ void disp_draw_mark_position(uint8_t cx, uint8_t cy, uint8_t size)
   lcd_drawRect(x0, y0, x1, y1, WHITE);
 }
 
-enum pwm_setup_steps
-{
-  STEP_FREQ = 0,
-  STEP_DUTY,
-  STEP_SWEEP,
-};
-
+// defined and temporary strings to show values on display
 #define PWM_STATUS_ON _BV(0) // =1: ON, =0: OFF
 static char pwm_status_text[][4] = {"OFF", "ON"};
 
-static struct
-{
-  uint16_t freq;    // 0 ... 10000  (0 ... 10000 Hz)
-  uint8_t freq_pos; // 0 ... 3 (1, 10, 100, 1000)
-  uint16_t duty;    // 0 ... 1000 (0.0 ... 100.0 %)
-  uint8_t duty_pos; // 0, 2, 3 (0.1, 1.0, 10.0)
-  uint8_t status;
-  enum pwm_setup_steps step;
-} pwm_settings = {
-    .freq = 10,
-    .freq_pos = 0,
-    .duty = 500,
-    .duty_pos = 0,
-    .status = 0,
-    .step = 1,
-};
-#define FREQ_POS_0 (5)
-#define DUTY_POS_0 (6)
-
 #define LINE_SIZE (23)
 static char line[LINE_SIZE + 1]; // +1: '\0' at the end
+static char freq_str[8];
+static char duty_str[8];
 
 void stringcopyn(char *to, char *from, uint8_t max_size)
 {
@@ -203,8 +180,7 @@ void stringcopyn(char *to, char *from, uint8_t max_size)
   to[n] = '\0'; // termination
 }
 
-static char u16_str[8];
-static char *uint16_t_to_str(uint16_t u16, uint8_t nb_digits)
+static char *uint16_t_to_str(char *dest, uint16_t u16, uint8_t nb_digits)
 {
   uint16_t divisor[] = {1, 10, 100, 1000, 10000};
   uint8_t digit, digit_pos, str_pos, space;
@@ -216,164 +192,166 @@ static char *uint16_t_to_str(uint16_t u16, uint8_t nb_digits)
     if ((digit == 0) && (space == 1))
     {
       // skip
-      u16_str[str_pos++] = ' ';
+      dest[str_pos++] = ' ';
       continue;
     }
     else
     {
       space = 0;
-      u16_str[str_pos++] = digit + '0';
+      dest[str_pos++] = digit + '0';
       u16 = u16 - (digit * divisor[digit_pos]);
     }
   }
   digit = (uint8_t)u16;
-  u16_str[str_pos++] = digit + '0';
-  u16_str[str_pos++] = '\0';
-  return u16_str;
+  dest[str_pos++] = digit + '0';
+  dest[str_pos++] = '\0';
+  return dest;
 }
 
-static char *int8_t_to_str(int8_t i8, uint8_t nb_digits)
+static char *int8_t_to_str(char *dest, int8_t i8, uint8_t nb_digits)
 {
   uint16_t divisor[] = {1, 10, 100};
-  uint8_t digit, digit_pos, str_pos, space;
+  uint8_t u8, digit, digit_pos, str_pos, space;
   space = 1;
   str_pos = 0;
   if (i8 < 0)
   {
-    u16_str[str_pos++] = '-';
+    dest[str_pos++] = '-'; // neg sign
+    u8 = (uint8_t)(i8 * -1);
+  }
+  else
+  {
+    dest[str_pos++] = ' '; // no sign
+    u8 = (uint8_t)(i8);
   }
   for (digit_pos = nb_digits - 1; digit_pos != 0; digit_pos--)
   {
-    digit = (uint8_t)(i8 / divisor[digit_pos]);
+    digit = (uint8_t)(u8 / divisor[digit_pos]);
     if ((digit == 0) && (space == 1))
     {
       // skip
-      u16_str[str_pos++] = ' ';
+      dest[str_pos++] = ' ';
       continue;
     }
     else
     {
       space = 0;
-      u16_str[str_pos++] = digit + '0';
-      i8 = i8 - (digit * divisor[digit_pos]);
+      dest[str_pos++] = digit + '0';
+      u8 = u8 - (digit * divisor[digit_pos]);
     }
   }
-  digit = (uint8_t)i8;
-  u16_str[str_pos++] = digit + '0';
-  u16_str[str_pos++] = '\0';
-  return u16_str;
+  digit = (uint8_t)u8;
+  dest[str_pos++] = digit + '0';
+  dest[str_pos++] = '\0';
+  return dest;
 }
 
-static void frequency_to_line(void)
+convert_freq_to_str(uint16_t freq)
 {
-  char *res_str;
-  if (pwm_settings.freq == 10000)
+  if (freq == 10000)
   {
     // special case
-    stringcopyn(line, "  10000 Hz", LINE_SIZE);
-    return;
+    stringcopyn(freq_str, "10000", 6);
   }
+  uint16_t_to_str(freq_str, freq, 4);
+}
+
+convert_duty_to_str(uint16_t duty)
+{
+  if (duty == 1000)
+  {
+    // special case
+    stringcopyn(duty_str, "1000", 6);
+  }
+  uint16_t_to_str(duty_str, duty, 4);
+}
+
+static void frequency_to_line(char *num_str)
+{
   stringcopyn(line, "      0 Hz", LINE_SIZE);
-  res_str = uint16_t_to_str(pwm_settings.freq, 4);
-  stringcopyn(&line[3], res_str, LINE_SIZE);
+  stringcopyn(&line[3], num_str, LINE_SIZE);
   stringcopyn(&line[3 + 4], " Hz", LINE_SIZE);
 }
 
-static void frequency_small_to_line(void)
+static void frequency_small_to_line(char *num_str)
 {
-  char *res_str;
-  if (pwm_settings.freq == 10000)
-  {
-    // special case
-    stringcopyn(line, "Freq:10000Hz", LINE_SIZE);
-    return;
-  }
   stringcopyn(line, "Freq:    0Hz", LINE_SIZE);
-  res_str = uint16_t_to_str(pwm_settings.freq, 4);
-  stringcopyn(&line[6], res_str, LINE_SIZE);
+  stringcopyn(&line[6], num_str, LINE_SIZE);
   stringcopyn(&line[6 + 4], " Hz", LINE_SIZE);
 }
 
-static void duty_to_line(void)
+static void duty_to_line(char *num_str)
 {
-  char *res_str;
-  if (pwm_settings.duty == 1000)
-  {
-    // special case
-    stringcopyn(line, "  100.0 %", LINE_SIZE);
-    return;
-  }
   stringcopyn(line, "    0.0 %", LINE_SIZE);
-  res_str = uint16_t_to_str(pwm_settings.duty, 3);
-  stringcopyn(&line[3], res_str, LINE_SIZE);
+  stringcopyn(&line[3], num_str, LINE_SIZE);
   stringcopyn(&line[3 + 2], ".", LINE_SIZE);
-  stringcopyn(&line[3 + 3], &res_str[2], LINE_SIZE);
+  stringcopyn(&line[3 + 3], &num_str[2], LINE_SIZE);
   stringcopyn(&line[3 + 4], " %", LINE_SIZE);
 }
 
-static void duty_small_to_line(void)
+static void duty_small_to_line(char *num_str)
 {
-  char *res_str;
-  if (pwm_settings.duty == 1000)
-  {
-    // special case
-    stringcopyn(line, "Duty: 100.0%", LINE_SIZE);
-    return;
-  }
   stringcopyn(line, "Duty:   0.0%", LINE_SIZE);
-  res_str = uint16_t_to_str(pwm_settings.duty, 3);
-  stringcopyn(&line[6], res_str, LINE_SIZE);
+  stringcopyn(&line[6], num_str, LINE_SIZE);
   stringcopyn(&line[6 + 2], ".", LINE_SIZE);
-  stringcopyn(&line[6 + 3], &res_str[2], LINE_SIZE);
+  stringcopyn(&line[6 + 3], &num_str[2], LINE_SIZE);
   stringcopyn(&line[6 + 4], " %", LINE_SIZE);
 }
 
-void disp_draw_pwm_setup(void)
+void disp_draw_pwm_setup(pwm_settings_t *ps)
 {
-  // pwm_settings.freq = 36;
-  // pwm_settings.duty = 567;
+  // no need to clear display when only showing text because of "footprint" of the characters?
+  // "footprint": eg. 8x8 pixel containing whole character AND background
+  //              -> it will draw over existing pixels
+
+  // preparation convert numbers into strings
+
+  duty_str[8];
+
+  convert_freq_to_str(ps->freq); // result in char freq_str[]
+  convert_duty_to_str(ps->duty); // result in char duty_str[]
 
   // 1st: status line
   lcd_charMode(DOUBLESIZE);
   lcd_gotoxy(0, 0);
-  lcd_puts(pwm_status_text[(pwm_settings.status & PWM_STATUS_ON)]);
+  lcd_puts(pwm_status_text[(ps->status & PWM_STATUS_ON)]);
   lcd_charMode(NORMALSIZE);
   lcd_gotoxy(8, 0);
-  frequency_small_to_line();
+  frequency_small_to_line(freq_str);
   lcd_puts(line);
   lcd_gotoxy(8, 1);
-  duty_small_to_line();
+  duty_small_to_line(duty_str);
   lcd_puts(line);
 
   // 2nd: settings
   lcd_charMode(DOUBLESIZE);
-  switch (pwm_settings.step)
+  switch (ps->item)
   {
-  case STEP_FREQ:
+  case ITEM_FREQ:
     lcd_gotoxy(0, 2);
     lcd_puts("Frequency");
     lcd_gotoxy(0, 4);
-    frequency_to_line();
+    frequency_to_line(freq_str);
     lcd_puts(line);
     lcd_gotoxy(0, 6);
     lcd_puts("Duty cycle");
     lcd_gotoxy(0, 4);
     lcd_puts(">");
-    disp_draw_mark_position((FREQ_POS_0 - pwm_settings.freq_pos), 4, DOUBLESIZE);
+    disp_draw_mark_position((FREQ_POS_0 - ps->freq_pos), 4, DOUBLESIZE);
     break;
-  case STEP_DUTY:
+  case ITEM_DUTY:
   default:
-    pwm_settings.step = STEP_DUTY;
+    ps->item = ITEM_DUTY;
     lcd_gotoxy(0, 2);
     lcd_puts("Duty cycle");
     lcd_gotoxy(0, 4);
-    duty_to_line();
+    duty_to_line(duty_str);
     lcd_puts(line);
     lcd_gotoxy(0, 6);
     lcd_puts("Frequency");
     lcd_gotoxy(0, 4);
     lcd_puts(">");
-    disp_draw_mark_position((DUTY_POS_0 - pwm_settings.duty_pos), 4, DOUBLESIZE);
+    disp_draw_mark_position((DUTY_POS_0 - ps->duty_pos), 4, DOUBLESIZE);
     break;
   }
   lcd_display();
@@ -396,19 +374,19 @@ void disp_draw_button(void)
   lcd_gotoxy(1, 1);
   lcd_puts("PIN_BUTTON_ON_OFF");
   lcd_gotoxy(2, 2);
-  res = int8_t_to_str(b0, 3);
+  res = int8_t_to_str(line, b0, 3);
   lcd_puts(res);
 
   lcd_gotoxy(1, 3);
   lcd_puts("PIN_BUTTON_WHEEL");
   lcd_gotoxy(2, 4);
-  res = int8_t_to_str(b1, 3);
+  res = int8_t_to_str(line, b1, 3);
   lcd_puts(res);
 
   lcd_gotoxy(1, 5);
   lcd_puts("PIN_WHEEL");
   lcd_gotoxy(2, 6);
-  res = int8_t_to_str(w0, 3);
+  res = int8_t_to_str(line, w0, 3);
   lcd_puts(res);
 
   lcd_display();

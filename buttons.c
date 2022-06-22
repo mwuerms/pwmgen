@@ -43,22 +43,22 @@ ISR(PCINT1_vect)
   {
     if ((wheel_in & _BV(PIN_WHEEL_B)) == 0)
     {
-      wheel_cnt++;
+      wheel_cnt--;
     }
     else
     {
-      wheel_cnt--;
+      wheel_cnt++;
     }
   }
   else
   {
     if ((wheel_in & _BV(PIN_WHEEL_B)) == 0)
     {
-      wheel_cnt--;
+      wheel_cnt++;
     }
     else
     {
-      wheel_cnt++;
+      wheel_cnt--;
     }
   }
   SEND_EVENT(EV_BUTTON);
@@ -67,20 +67,6 @@ ISR(PCINT1_vect)
   sei();
 }
 
-/*
-if ((PINC & _BV(PIN_BUTTON_ON_OFF)) == 0)
-  {
-    // pressed
-    button_on_cnt++;
-    change = 1;
-  }
-  if ((PINC & _BV(PIN_BUTTON_WHEEL)) == 0)
-  {
-    // pressed
-    button_wheel_cnt++;
-    change = 1;
-  }
-*/
 void buttons_init(void)
 {
   // vars

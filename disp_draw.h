@@ -18,11 +18,26 @@ void disp_draw_clear(void);
 
 void disp_draw_info(void);
 uint8_t disp_draw_update_info(void);
-void disp_draw_pwm_setup(void);
 
-void disp_draw_test_label(void);
-void disp_draw_test_pwm(void);
+typedef enum
+{
+    ITEM_FREQ = 0,
+    ITEM_DUTY,
+    ITEM_SWEEP,
+} pwm_setup_items_t;
+typedef struct
+{
+    uint16_t freq;    // 0 ... 10000  (0 ... 10000 Hz)
+    uint8_t freq_pos; // 0 ... 3 (1, 10, 100, 1000)
+    uint16_t duty;    // 0 ... 1000 (0.0 ... 100.0 %)
+    uint8_t duty_pos; // 0, 2, 3 (0.1, 1.0, 10.0)
+    uint8_t status;
+    pwm_setup_items_t item;
+} pwm_settings_t;
+#define FREQ_POS_0 (5)
+#define DUTY_POS_0 (6)
 
+void disp_draw_pwm_setup(pwm_settings_t *ps);
 void disp_draw_button(void);
 
 #endif /* _DISP_DRAW_H_ */
