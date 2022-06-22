@@ -6,11 +6,14 @@
 
 #ifndef _DISP_DRAW_H_
 #define _DISP_DRAW_H_
-/* - includes --------------------------------------------------------------- */
+// - includes ------------------------------------------------------------------
 #include <stdint.h>
 #include "macrolib.h"
 
 // - definitions ---------------------------------------------------------------
+
+// - public variables ----------------------------------------------------------
+extern const uint16_t decimal_place[];
 
 // - public functions ----------------------------------------------------------
 void disp_draw_init(void);
@@ -36,7 +39,7 @@ typedef struct
 } pwm_settings_t;
 #define FREQ_POS_0 (6)
 #define DUTY_POS_0 (6)
-#define ITEM_POS (255)
+#define MENU_POS (255)
 
 #define PWM_STATUS_ON _BV(0) // =1: ON, =0: OFF
 

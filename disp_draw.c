@@ -192,7 +192,7 @@ uint8_t stringlen(char *str)
   return n;
 }
 
-static const uint16_t dec_divisor[] = {1, 10, 100, 1000, 10000};
+const uint16_t decimal_place[] = {1, 10, 100, 1000, 10000};
 static char *uint16_t_to_str(char *dest, uint16_t u16, uint8_t nb_digits)
 {
   uint8_t digit, digit_pos, str_pos, space;
@@ -200,7 +200,7 @@ static char *uint16_t_to_str(char *dest, uint16_t u16, uint8_t nb_digits)
   str_pos = 0;
   for (digit_pos = nb_digits - 1; digit_pos != 0; digit_pos--)
   {
-    digit = (uint8_t)(u16 / dec_divisor[digit_pos]);
+    digit = (uint8_t)(u16 / decimal_place[digit_pos]);
     if ((digit == 0) && (space == 1))
     {
       // skip
@@ -210,7 +210,7 @@ static char *uint16_t_to_str(char *dest, uint16_t u16, uint8_t nb_digits)
     {
       space = 0;
       dest[str_pos++] = digit + '0';
-      u16 = u16 - (digit * dec_divisor[digit_pos]);
+      u16 = u16 - (digit * decimal_place[digit_pos]);
     }
   }
   digit = (uint8_t)u16;
@@ -236,7 +236,7 @@ static char *int8_t_to_str(char *dest, int8_t i8, uint8_t nb_digits)
   }
   for (digit_pos = nb_digits - 1; digit_pos != 0; digit_pos--)
   {
-    digit = (uint8_t)(u8 / dec_divisor[digit_pos]);
+    digit = (uint8_t)(u8 / decimal_place[digit_pos]);
     if ((digit == 0) && (space == 1))
     {
       // skip
@@ -246,7 +246,7 @@ static char *int8_t_to_str(char *dest, int8_t i8, uint8_t nb_digits)
     {
       space = 0;
       dest[str_pos++] = digit + '0';
-      u8 = u8 - (digit * dec_divisor[digit_pos]);
+      u8 = u8 - (digit * decimal_place[digit_pos]);
     }
   }
   digit = (uint8_t)u8;
@@ -296,7 +296,7 @@ static void frequency_to_line(char *num_str)
 
 static uint8_t calc_freq_focus_pos(uint8_t pos)
 {
-  if (pos == ITEM_POS)
+  if (pos == MENU_POS)
   {
     return 0;
   }
@@ -321,18 +321,15 @@ static void duty_to_line(char *num_str)
   stringcopyn(&line[2 + 5], " %", LINE_SIZE);
 }
 
+static const uint8_t duty_focus_pos[] = {0, 2, 3};
 static uint8_t calc_duty_focus_pos(uint8_t pos)
 {
-  if (pos == ITEM_POS)
+  if (pos == MENU_POS)
   {
     return 0;
   }
-  // "    0.0 %"
-  if (pos == (DUTY_POS_0 - 1))
-  {
-    return DUTY_POS_0;
-  }
-  return DUTY_POS_0 - pos;
+  // "    0.0 %", do put focus not on "."
+  return DUTY_POS_0 - duty_focus_pos[pos];
 }
 
 static void duty_small_to_line(char *num_str)
