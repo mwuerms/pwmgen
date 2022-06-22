@@ -17,7 +17,7 @@ pwm_settings_t pwm_settings = {
     .duty = 789,
     .duty_pos = ITEM_POS,
     .status = 0,
-    .item = ITEM_FREQ,
+    .menu = MENU_ITEM_FREQ,
 };
 
 // - private functions ---------------------------------------------------------
@@ -28,6 +28,20 @@ void disp_init_pwm_setup(void)
   disp_flags |= DISP_FLAG_PWM_SETUP_ENABLE;
   disp_draw_pwm_setup(&pwm_settings);
 }
+
+static void switch_menu(uint8_t next_menu, uint8_t prev_menu)
+{
+  if (wheel_cnt > 0)
+  {
+    pwm_settings.menu = next_menu;
+  }
+  else
+  {
+    pwm_settings.menu = prev_menu;
+  }
+  wheel_cnt = 0;
+}
+
 void disp_update_pwm_setup(uint8_t button_events)
 {
   if ((disp_flags & DISP_FLAG_PWM_SETUP_ENABLE) == 0)
@@ -43,60 +57,33 @@ void disp_update_pwm_setup(uint8_t button_events)
       pwm_settings.status |= PWM_STATUS_ON;
   }
 
-  switch (pwm_settings.item)
+  switch (pwm_settings.menu)
   {
-  case ITEM_FREQ:
+  case MENU_ITEM_FREQ:
     if (button_events & EV_BUTTON_WHEEL)
     {
       if (pwm_settings.freq_pos == ITEM_POS)
       {
-        if (wheel_cnt > 0)
-        {
-          // +: next
-          pwm_settings.item = ITEM_DUTY;
-        }
-        else
-        {
-          // -: prev
-          pwm_settings.item = ITEM_SWEEP;
-        }
-        wheel_cnt = 0;
+        switch_menu(MENU_ITEM_DUTY, MENU_ITEM_SWEEP);
       }
     }
     break;
-  case ITEM_DUTY:
+  case MENU_ITEM_DUTY:
     if (button_events & EV_BUTTON_WHEEL)
     {
       if (pwm_settings.duty_pos == ITEM_POS)
       {
-        if (wheel_cnt > 0)
-        {
-          // +: next
-          pwm_settings.item = ITEM_SWEEP;
-        }
-        else
-        {
-          // -: prev
-          pwm_settings.item = ITEM_FREQ;
-        }
-        wheel_cnt = 0;
+        switch_menu(MENU_ITEM_SWEEP, MENU_ITEM_FREQ);
       }
     }
     break;
-  case ITEM_SWEEP:
+  case MENU_ITEM_SWEEP:
     if (button_events & EV_BUTTON_WHEEL)
     {
-      if (wheel_cnt > 0)
+      if (pwm_settings.duty_pos == ITEM_POS)
       {
-        // +: next
-        pwm_settings.item = ITEM_FREQ;
+        switch_menu(MENU_ITEM_FREQ, MENU_ITEM_DUTY);
       }
-      else
-      {
-        // -: prev
-        pwm_settings.item = ITEM_DUTY;
-      }
-      wheel_cnt = 0;
     }
     break;
   }

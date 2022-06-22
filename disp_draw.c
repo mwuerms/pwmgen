@@ -364,9 +364,9 @@ void disp_draw_pwm_setup(pwm_settings_t *ps)
 
   // 2nd: settings
   lcd_charMode(DOUBLESIZE);
-  switch (ps->item)
+  switch (ps->menu)
   {
-  case ITEM_FREQ:
+  case MENU_ITEM_FREQ:
     lcd_gotoxy(0, 2);
     lcd_puts("Frequency");
     lcd_gotoxy(0, 4);
@@ -378,7 +378,7 @@ void disp_draw_pwm_setup(pwm_settings_t *ps)
     lcd_puts(">");
     disp_draw_mark_position(calc_freq_focus_pos(ps->freq_pos), 4, DOUBLESIZE);
     break;
-  case ITEM_DUTY:
+  case MENU_ITEM_DUTY:
     lcd_gotoxy(0, 2);
     lcd_puts("Duty cycle");
     lcd_gotoxy(0, 4);
@@ -390,7 +390,7 @@ void disp_draw_pwm_setup(pwm_settings_t *ps)
     lcd_puts(">");
     disp_draw_mark_position(calc_duty_focus_pos(ps->duty_pos), 4, DOUBLESIZE);
     break;
-  case ITEM_SWEEP:
+  case MENU_ITEM_SWEEP:
   default:
     lcd_gotoxy(0, 2);
     lcd_puts("Sweep");

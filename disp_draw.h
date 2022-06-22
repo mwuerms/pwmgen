@@ -21,10 +21,10 @@ uint8_t disp_draw_update_info(void);
 
 typedef enum
 {
-    ITEM_FREQ = 0,
-    ITEM_DUTY,
-    ITEM_SWEEP,
-} pwm_setup_items_t;
+    MENU_ITEM_FREQ = 0,
+    MENU_ITEM_DUTY,
+    MENU_ITEM_SWEEP,
+} pwm_setup_menus_t;
 typedef struct
 {
     uint16_t freq;    // 0 ... 10000  (0 ... 10000 Hz)
@@ -32,7 +32,7 @@ typedef struct
     uint16_t duty;    // 0 ... 1000 (0.0 ... 100.0 %)
     uint8_t duty_pos; // 0, 2, 3 (0.1, 1.0, 10.0)
     uint8_t status;
-    pwm_setup_items_t item;
+    pwm_setup_menus_t menu;
 } pwm_settings_t;
 #define FREQ_POS_0 (6)
 #define DUTY_POS_0 (6)
