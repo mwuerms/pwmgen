@@ -129,7 +129,23 @@ module oled_module(loc_res = 32) {
     }
         
 }
+
+// size in hole count: 10 = 10*2.54 mm
+module bread_board(xsize = 10, ysize = 10, loc_res = 16) {
+    translate([-2.54/2, -2.54/2, 0]) {
+        difference() {
+            cube([(xsize)*2.54, (ysize)*2.54, 1.5]);
+            for(n = [0:1:xsize-1]) {
+                for(m = [0:1:ysize-1]) {
+                    translate([2.54/2+n*2.54, 2.54/2+m*2.54, -1])
+                    cylinder(d = 1, h = 4, $fn = loc_res);
+                }
+            }
+        }
+    }
+}
 //arduino_nano();
 //rotary_encoder();
-rotary_encoder_knob();
+//rotary_encoder_knob();
 //oled_module();
+bread_board(20, 11);
