@@ -144,8 +144,27 @@ module bread_board(xsize = 10, ysize = 10, loc_res = 16) {
         }
     }
 }
+
+module button(loc_res = 32) {
+    color("Red")
+    translate([0, 0, -1])
+    cylinder(d1 = 0, d2 = 1, h= 5, $fn = loc_res);
+    translate([2*2.54-3, 2.54-3, 0]){
+        color("Black")
+        translate([3, 3, 0])
+        cylinder(d = 3.5, h = 5, $fn = loc_res);
+        color("Black")
+        translate([0, 0, 0])
+        cube([6, 6, 3.5]);
+        color("Silver")
+        translate([0, 0, 3.5])
+        cube([6, 6, 0.1]);
+    }
+}
+
 //arduino_nano();
 //rotary_encoder();
 //rotary_encoder_knob();
 //oled_module();
-bread_board(20, 11);
+//bread_board(20, 11);
+button();
