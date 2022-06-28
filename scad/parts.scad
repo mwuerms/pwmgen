@@ -74,7 +74,7 @@ module rotary_encoder_knob(loc_res = 64) {
             }
             //axis
             translate([0, 0, -1])
-            cylinder(d2 = 6, d1= 6.4, h = 10+1, $fn = loc_res);
+            cylinder(d2 = 6.2, d1= 6.6, h = 10+1, $fn = loc_res);
             for(a = [0:1:15]) {
                 translate([6*sin(a*360/16), 6*cos(a*360/16), 3])
                 cylinder(d = 1.5, h = 12, $fn = loc_res);
@@ -167,4 +167,4 @@ module button(loc_res = 32) {
 //rotary_encoder_knob();
 //oled_module();
 //bread_board(20, 11);
-button();
+//button();

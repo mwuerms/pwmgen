@@ -37,78 +37,130 @@ module electronics1(loc_res = 32) {
     button();
 }
 
-module top_case1(show_el = 1, loc_res = 32) {
+module top_case1_1(show_el = 1, loc_res = 32) {
     if(show_el)
         electronics1();
     color("Green") {
         difference() {
             union() {
                 translate([1*2.54, 1*2.54, 1.5])
-                cylinder(d = 6, h = 5, $fn = loc_res);
+                cylinder(d = 6, h = 6, $fn = loc_res);
                 translate([1*2.54, 11*2.54, 1.5])
-                cylinder(d = 6, h = 5, $fn = loc_res);
+                cylinder(d = 6, h = 6, $fn = loc_res);
                 translate([27*2.54, 1*2.54, 1.5])
-                cylinder(d = 6, h = 5, $fn = loc_res);
+                cylinder(d = 6, h = 6, $fn = loc_res);
                 translate([27*2.54, 11*2.54, 1.5])
-                cylinder(d = 6, h = 5, $fn = loc_res);
+                cylinder(d = 6, h = 6, $fn = loc_res);
             
                 difference() {
                     hull() {
                         translate([1*2.54, 1*2.54, 0])
-                        cylinder(d = 14, h = 6.5, $fn = loc_res);
+                        cylinder(d = 14, h = 7.5, $fn = loc_res);
                         translate([1*2.54, 11*2.54, 0])
-                        cylinder(d = 14, h = 6.5, $fn = loc_res);
+                        cylinder(d = 14, h = 7.5, $fn = loc_res);
                         translate([27*2.54, 1*2.54, 0])
-                        cylinder(d = 14, h = 6.5, $fn = loc_res);
+                        cylinder(d = 14, h = 7.5, $fn = loc_res);
                         translate([27*2.54, 11*2.54, 0])
-                        cylinder(d = 14, h = 6.5, $fn = loc_res);
+                        cylinder(d = 14, h = 7.5, $fn = loc_res);
                     }
                     hull() {
                         translate([1*2.54, 1*2.54, -1])
-                        cylinder(d = 12, h = 6.5, $fn = loc_res);
+                        cylinder(d = 12, h = 7.5, $fn = loc_res);
                         translate([1*2.54, 11*2.54, -1])
-                        cylinder(d = 12, h = 6.5, $fn = loc_res);
+                        cylinder(d = 12, h = 7.5, $fn = loc_res);
                         translate([27*2.54, 1*2.54, -1])
-                        cylinder(d = 12, h = 6.5, $fn = loc_res);
+                        cylinder(d = 12, h = 7.5, $fn = loc_res);
                         translate([27*2.54, 11*2.54, -1])
-                        cylinder(d = 12, h = 6.5, $fn = loc_res);
+                        cylinder(d = 12, h = 7.5, $fn = loc_res);
                     }
                 }
                 translate([-4.46, 4*2.54, -2.2])
                 cube([1, 4*2.54, 6.5]);
+                
+                translate([18*2.54-16.2-1, 1*2.54+3.4-1, 5.5])
+                cube([27, 19, 1.5]);
             }
                 
             translate([1*2.54, 1*2.54, -1])
-            cylinder(d = 3.2, h = 6.5, $fn = loc_res);
+            cylinder(d = 2.5, h = 7.5, $fn = loc_res);
             translate([1*2.54, 11*2.54, -1])
-            cylinder(d = 3.1, h = 6.5, $fn = loc_res);
+            cylinder(d = 2.5, h = 7.5, $fn = loc_res);
             translate([27*2.54, 1*2.54, -1])
-            cylinder(d = 3.1, h = 6.5, $fn = loc_res);
+            cylinder(d = 2.5, h = 7.5, $fn = loc_res);
             translate([27*2.54, 11*2.54, -1])
-            cylinder(d = 3.1, h = 6.5, $fn = loc_res);
+            cylinder(d = 2.5, h = 7.5, $fn = loc_res);
             
-            translate([25*2.54, 6*2.54, 1.5])
-            cylinder(d = 4, h = 6, $fn = loc_res);
+            translate([25.5*2.54, 3*2.54, 1.5])
+            cylinder(d = 3, h = 8, $fn = loc_res);
             
+            translate([26.75*2.54, 6.5*2.54, 7])
+            rotate([0, 0, 180])
+            linear_extrude(2)
+            text("ON", size= 3);
+            
+            translate([29.5*2.54, 2.5*2.54, 7])
+            rotate([0, 0, 180])
+            linear_extrude(2)
+            text("5.0V", size= 3);
+            translate([29.5*2.54, 4*2.54, 7])
+            rotate([0, 0, 180])
+            linear_extrude(2)
+            text("var", size= 3);
+            translate([29.5*2.54, 5.5*2.54, 7])
+            rotate([0, 0, 180])
+            linear_extrude(2)
+            text("fix", size= 3);
+            
+            translate([29.5*2.54, 10*2.54, 7])
+            rotate([0, 0, 180])
+            linear_extrude(2)
+            text("3.3V", size= 3);
+            translate([29.5*2.54, 8.5*2.54, 7])
+            rotate([0, 0, 180])
+            linear_extrude(2)
+            text("var", size= 3);
+            translate([29.5*2.54, 7*2.54, 7])
+            rotate([0, 0, 180])
+            linear_extrude(2)
+            text("fix", size= 3);
+            
+            hull() {
+                translate([27*2.54, 4.5*2.54, 1.5])
+                cylinder(d = 0.5, h = 8, $fn = loc_res);
+                translate([27*2.54, 7.5*2.54, 1.5])
+                cylinder(d = 0.5, h = 8, $fn = loc_res);
+            }
+            hull() {            
+                translate([27*2.54, 4.5*2.54, 1.5])
+                cylinder(d = 0.5, h = 8, $fn = loc_res);
+                translate([24*2.54, 4.5*2.54, 1.5])
+                cylinder(d = 0.5, h = 8, $fn = loc_res);
+            }
+            hull() {    
+                translate([24*2.54, 4.5*2.54, 1.5])
+                cylinder(d = 0.5, h = 8, $fn = loc_res);
+                translate([24*2.54, 7.5*2.54, 1.5])
+                cylinder(d = 0.5, h = 8, $fn = loc_res);
+            }            
             translate([5*2.54, 6*2.54, 1.5])
-            cylinder(d = 7, h = 6, $fn = loc_res);
+            cylinder(d = 8, h = 8, $fn = loc_res);
             
-            translate([18*2.54-16.4, 1*2.54+3.4, 1.5])
-            cube([25.3, 17, 6]);
+            translate([18*2.54-16.2, 1*2.54+3.4, 1.5])
+            cube([25, 17, 8]);
             
-            translate([28*2.54, 9*2.54-2.54/2, -1.4])
+            translate([28*2.54, 9*2.54-2.54/2, -2])
             cube([2*2.54, 1*2.54, 2*2.54]);
-            translate([28*2.54, 7*2.54-2.54/2, -1.4])
+            translate([28*2.54, 7*2.54-2.54/2, -2])
             cube([2*2.54, 1*2.54, 2*2.54]);
-            translate([28*2.54, 5*2.54-2.54/2, -1.4])
+            translate([28*2.54, 5*2.54-2.54/2, -2])
             cube([2*2.54, 1*2.54, 2*2.54]);
-            translate([28*2.54, 3*2.54-2.54/2, -1.4])
+            translate([28*2.54, 3*2.54-2.54/2, -2])
             cube([2*2.54, 1*2.54, 2*2.54]);
         }
     }
 }
 
-module bottom_case1(show_el = 1, loc_res = 32) {
+module bottom_case1_1(show_el = 1, loc_res = 32) {
     if(show_el)
         electronics1();
     
@@ -151,33 +203,33 @@ module bottom_case1(show_el = 1, loc_res = 32) {
             cube([2*2.45, 4*2.54, 7.5]);
             
             translate([1*2.54, 1*2.54, -8.5]) {
-                cylinder(d = 3.1, h = 12, $fn = loc_res);
-                cylinder(d2 = 3.1, d1 = 8, h = 3, $fn = loc_res);
+                cylinder(d = 3.2, h = 12, $fn = loc_res);
+                cylinder(d2 = 3.2, d1 = 8, h = 3, $fn = loc_res);
             }
             translate([1*2.54, 11*2.54, -8.5]) {
-                cylinder(d = 3.1, h = 12, $fn = loc_res);
-                cylinder(d2 = 3.1, d1 = 8, h = 3, $fn = loc_res);
+                cylinder(d = 3.2, h = 12, $fn = loc_res);
+                cylinder(d2 = 3.2, d1 = 8, h = 3, $fn = loc_res);
             }
             translate([27*2.54, 1*2.54, -8.5]) {
-                cylinder(d = 3.1, h = 12, $fn = loc_res);
-                cylinder(d2 = 3.1, d1 = 8, h = 3, $fn = loc_res);
+                cylinder(d = 3.2, h = 12, $fn = loc_res);
+                cylinder(d2 = 3.2, d1 = 8, h = 3, $fn = loc_res);
             }
             translate([27*2.54, 11*2.54, -8.5]) {
-                cylinder(d = 3.1, h = 12, $fn = loc_res);
-                cylinder(d2 = 3.1, d1 = 8, h = 3, $fn = loc_res);
+                cylinder(d = 3.2, h = 12, $fn = loc_res);
+                cylinder(d2 = 3.2, d1 = 8, h = 3, $fn = loc_res);
             }
-            translate([28*2.54, 9*2.54-2.54/2, -1.4])
+            translate([28*2.54, 9*2.54-2.54/2, -2])
             cube([2*2.54, 1*2.54, 2*2.54]);
-            translate([28*2.54, 7*2.54-2.54/2, -1.4])
+            translate([28*2.54, 7*2.54-2.54/2, -2])
             cube([2*2.54, 1*2.54, 2*2.54]);
-            translate([28*2.54, 5*2.54-2.54/2, -1.4])
+            translate([28*2.54, 5*2.54-2.54/2, -2])
             cube([2*2.54, 1*2.54, 2*2.54]);
-            translate([28*2.54, 3*2.54-2.54/2, -1.4])
+            translate([28*2.54, 3*2.54-2.54/2, -2])
             cube([2*2.54, 1*2.54, 2*2.54]);
         }
     }
 }
 
-//top_case1(0);
-//bottom_case1(0);
+//top_case1_1(0);
+//bottom_case1_1(0);
 rotary_encoder_knob();
