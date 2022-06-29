@@ -66,18 +66,24 @@ module rotary_encoder_knob(loc_res = 64) {
         difference() {
             union() {
                 translate([0, 0, 0])
-                cylinder(d1 = 13, d2 = 10, h = 14, $fn = loc_res);
-                translate([0, 0, 14])
+                cylinder(d1 = 13, d2 = 10, h = 16, $fn = loc_res);
+                translate([0, 0, 16])
                 cylinder(d1 = 10, d2 = 6, h = 1, $fn = loc_res);
-                translate([0, 0, 0])
+                translate([0, 0, -2])
                 cylinder(d1 = 16, d2 = 15.5, h = 3, $fn = loc_res);
             }
             //axis
-            translate([0, 0, -1])
-            cylinder(d2 = 6.2, d1= 6.6, h = 10+1, $fn = loc_res);
+            difference() {
+                translate([0, 0, -1])
+                cylinder(d2 = 6.0, d1= 6.4, h = 13+1, $fn = loc_res);
+                translate([-3, 2, 4])
+                cube([6, 6, 10]);
+            }
+            translate([0, 0, -3])
+            cylinder(d = 8, h = 3+1, $fn = loc_res);
             for(a = [0:1:15]) {
-                translate([6*sin(a*360/16), 6*cos(a*360/16), 3])
-                cylinder(d = 1.5, h = 12, $fn = loc_res);
+                translate([6*sin(a*360/16), 6*cos(a*360/16), 1])
+                cylinder(d = 1.5, h = 14, $fn = loc_res);
             }
         }
     }
@@ -164,7 +170,7 @@ module button(loc_res = 32) {
 
 //arduino_nano();
 //rotary_encoder();
-//rotary_encoder_knob();
+rotary_encoder_knob();
 //oled_module();
 //bread_board(20, 11);
 //button();
