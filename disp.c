@@ -14,11 +14,15 @@
 
 pwm_settings_t pwm_settings = {
     .freq = 100,
-    .freq_pos = MENU_POS,
-    .duty = 50,
-    .duty_pos = MENU_POS,
+    .duty = 500, // 500 = 50.0
     .status = 0,
     .menu = MENU_ITEM_FREQ,
+    .menu_pos = MENU_POS,
+    .sweep.mode = SWEEP_MODE_OFF,
+    .sweep.duty_start = 450,
+    .sweep.duty_stop = 550,
+    .sweep.freq_start = 10,
+    .sweep.freq_stop = 100,
 };
 
 // - private functions ---------------------------------------------------------
@@ -45,6 +49,7 @@ static void switch_menu(uint8_t next_menu, uint8_t prev_menu)
 
 static const uint8_t freq_next_positions[] = {1, 2, 3, MENU_POS};
 static const uint8_t duty_next_positions[] = {1, 2, MENU_POS};
+// static const uint8_t sweep_mode_next_positions[] = {MENU_POS};
 static uint8_t next_position(uint8_t curr_pos, const uint8_t *positions)
 {
   if (curr_pos == MENU_POS)
@@ -54,16 +59,16 @@ static uint8_t next_position(uint8_t curr_pos, const uint8_t *positions)
   return positions[curr_pos];
 }
 
-void calc_new_frequency(void)
+void calc_new_frequency(uint8_t pos)
 {
   int16_t new_value;
   if (wheel_cnt > 0)
   {
-    new_value = pwm_settings.freq + decimal_place[pwm_settings.freq_pos];
+    new_value = pwm_settings.freq + decimal_place[pos];
   }
   else
   {
-    new_value = pwm_settings.freq - decimal_place[pwm_settings.freq_pos];
+    new_value = pwm_settings.freq - decimal_place[pos];
   }
   wheel_cnt = 0;
   if (new_value > PWM_MAX_FREQUENCY)
@@ -73,16 +78,16 @@ void calc_new_frequency(void)
   pwm_settings.freq = new_value;
 }
 
-void calc_new_duty(void)
+void calc_new_duty(uint8_t pos)
 {
   int16_t new_value;
   if (wheel_cnt > 0)
   {
-    new_value = pwm_settings.duty + decimal_place[pwm_settings.duty_pos];
+    new_value = pwm_settings.duty + decimal_place[pos];
   }
   else
   {
-    new_value = pwm_settings.duty - decimal_place[pwm_settings.duty_pos];
+    new_value = pwm_settings.duty - decimal_place[pos];
   }
   wheel_cnt = 0;
   if (new_value > PWM_MAX_PULSE_WIDTH)
@@ -90,6 +95,15 @@ void calc_new_duty(void)
   if (new_value < 0)
     new_value = 0;
   pwm_settings.duty = new_value;
+}
+
+static pwm_sweep_modes_t next_sweep_mode_mode(pwm_sweep_modes_t mode)
+{
+  if (mode >= SWEEP_MODE_FREQ)
+  {
+    return SWEEP_MODE_OFF;
+  }
+  return mode + 1;
 }
 
 void disp_update_pwm_setup(uint8_t button_events)
@@ -118,45 +132,61 @@ void disp_update_pwm_setup(uint8_t button_events)
   case MENU_ITEM_FREQ:
     if (button_events & EV_BUTTON_WHEEL)
     {
-      if (pwm_settings.freq_pos == MENU_POS)
+      if (pwm_settings.menu_pos == MENU_POS)
       {
-        switch_menu(MENU_ITEM_DUTY, MENU_ITEM_SWEEP);
+        switch_menu(MENU_ITEM_DUTY, MENU_ITEM_SWEEP_MODE);
       }
       else
       {
-        calc_new_frequency();
+        calc_new_frequency(pwm_settings.menu_pos);
         pwm_start(pwm_settings.freq, pwm_settings.duty);
       }
     }
     if (button_events & EV_BUTTON_BTN_WHEEL)
     {
-      pwm_settings.freq_pos = next_position(pwm_settings.freq_pos, freq_next_positions);
+      pwm_settings.menu_pos = next_position(pwm_settings.menu_pos, freq_next_positions);
     }
     break;
   case MENU_ITEM_DUTY:
     if (button_events & EV_BUTTON_WHEEL)
     {
-      if (pwm_settings.duty_pos == MENU_POS)
+      if (pwm_settings.menu_pos == MENU_POS)
       {
-        switch_menu(MENU_ITEM_SWEEP, MENU_ITEM_FREQ);
+        switch_menu(MENU_ITEM_SWEEP_MODE, MENU_ITEM_FREQ);
       }
       else
       {
-        calc_new_duty();
+        calc_new_duty(pwm_settings.menu_pos);
         pwm_start(pwm_settings.freq, pwm_settings.duty);
       }
     }
     if (button_events & EV_BUTTON_BTN_WHEEL)
     {
-      pwm_settings.duty_pos = next_position(pwm_settings.duty_pos, duty_next_positions);
+      pwm_settings.menu_pos = next_position(pwm_settings.menu_pos, duty_next_positions);
     }
     break;
-  case MENU_ITEM_SWEEP:
+  case MENU_ITEM_SWEEP_MODE:
     if (button_events & EV_BUTTON_WHEEL)
     {
-      // any :-) if (pwm_settings.duty_pos == MENU_POS)
+      if (pwm_settings.menu_pos == MENU_POS)
       {
         switch_menu(MENU_ITEM_FREQ, MENU_ITEM_DUTY);
+      }
+      else
+      {
+        pwm_settings.sweep.mode = next_sweep_mode_mode(pwm_settings.sweep.mode);
+      }
+    }
+    if (button_events & EV_BUTTON_BTN_WHEEL)
+    {
+
+      if (pwm_settings.menu_pos == 0)
+      {
+        pwm_settings.menu_pos = MENU_POS;
+      }
+      else
+      {
+        pwm_settings.menu_pos = 0;
       }
     }
     break;

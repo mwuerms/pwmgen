@@ -26,16 +26,33 @@ typedef enum
 {
     MENU_ITEM_FREQ = 0,
     MENU_ITEM_DUTY,
-    MENU_ITEM_SWEEP,
+    MENU_ITEM_SWEEP_MODE,
+    MENU_ITEM_SWEEP_DUTY_START,
+    MENU_ITEM_SWEEP_DUTY_STOP,
+    MENU_ITEM_SWEEP_FREQ_START,
+    MENU_ITEM_SWEEP_FREQ_STOP,
 } pwm_setup_menus_t;
+
+typedef enum
+{
+    SWEEP_MODE_OFF = 0,
+    SWEEP_MODE_DUTY,
+    SWEEP_MODE_FREQ,
+} pwm_sweep_modes_t;
+
 typedef struct
 {
-    uint16_t freq;    // 0 ... 10000  (0 ... 10000 Hz)
-    uint8_t freq_pos; // 0 ... 3 (1, 10, 100, 1000)
-    uint16_t duty;    // 0 ... 1000 (0.0 ... 100.0 %)
-    uint8_t duty_pos; // 0, 2, 3 (0.1, 1.0, 10.0)
+    uint16_t freq; // 0 ... 10000  (0 ... 10000 Hz)
+    uint16_t duty; // 0 ... 1000 (0.0 ... 100.0 %)
     uint8_t status;
     pwm_setup_menus_t menu;
+    uint8_t menu_pos;
+    struct
+    {
+        uint16_t duty_start, duty_stop;
+        uint16_t freq_start, freq_stop;
+        pwm_sweep_modes_t mode;
+    } sweep;
 } pwm_settings_t;
 #define FREQ_POS_0 (6)
 #define DUTY_POS_0 (6)

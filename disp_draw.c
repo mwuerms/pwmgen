@@ -158,6 +158,7 @@ void disp_draw_mark_position(uint8_t cx, uint8_t cy, uint8_t size)
 
 // defined and temporary strings to show values on display
 static char pwm_status_text[][4] = {"OFF", "ON "};
+static const char sweep_mode_text[][5] = {"OFF ", "DUTY", "FREQ"};
 
 #define LINE_SIZE (23)
 static char line[LINE_SIZE + 1]; // +1: '\0' at the end
@@ -340,6 +341,16 @@ static void duty_small_to_line(char *num_str)
   stringcopyn(&line[6 + 5], " %", LINE_SIZE);
 }
 
+static uint8_t calc_sweep_mode_focus_pos(uint8_t pos)
+{
+  if (pos == MENU_POS)
+  {
+    return 0;
+  }
+  // else
+  return 2;
+}
+
 void disp_draw_pwm_setup(pwm_settings_t *ps)
 {
   // preparation convert numbers into strings
@@ -358,47 +369,44 @@ void disp_draw_pwm_setup(pwm_settings_t *ps)
   lcd_gotoxy(8, 1);
   duty_small_to_line(duty_str);
   lcd_puts(line);
+  lcd_gotoxy(0, 2);
+  lcd_puts("Sweep mode: ");
+  lcd_gotoxy(12, 2);
+  lcd_puts(sweep_mode_text[ps->sweep.mode]);
 
   // 2nd: settings
   lcd_charMode(DOUBLESIZE);
   switch (ps->menu)
   {
   case MENU_ITEM_FREQ:
-    lcd_gotoxy(0, 2);
-    lcd_puts("Frequency");
     lcd_gotoxy(0, 4);
+    lcd_puts("Frequency");
+    lcd_gotoxy(0, 6);
     frequency_to_line(freq_str);
     lcd_puts(line);
     lcd_gotoxy(0, 6);
-    lcd_puts("Duty cycle");
-    lcd_gotoxy(0, 4);
     lcd_puts(">");
-    disp_draw_mark_position(calc_freq_focus_pos(ps->freq_pos), 4, DOUBLESIZE);
+    disp_draw_mark_position(calc_freq_focus_pos(ps->menu_pos), 6, DOUBLESIZE);
     break;
   case MENU_ITEM_DUTY:
-    lcd_gotoxy(0, 2);
-    lcd_puts("Duty cycle");
     lcd_gotoxy(0, 4);
+    lcd_puts("Duty cycle");
+    lcd_gotoxy(0, 6);
     duty_to_line(duty_str);
     lcd_puts(line);
     lcd_gotoxy(0, 6);
-    lcd_puts("Sweep");
-    lcd_gotoxy(0, 4);
     lcd_puts(">");
-    disp_draw_mark_position(calc_duty_focus_pos(ps->duty_pos), 4, DOUBLESIZE);
+    disp_draw_mark_position(calc_duty_focus_pos(ps->menu_pos), 6, DOUBLESIZE);
     break;
-  case MENU_ITEM_SWEEP:
+  case MENU_ITEM_SWEEP_MODE:
   default:
-    lcd_gotoxy(0, 2);
-    lcd_puts("Sweep");
     lcd_gotoxy(0, 4);
-    duty_to_line(1234);
-    lcd_puts(line);
+    lcd_puts("Sweep Mode");
+    lcd_gotoxy(3, 6);
+    lcd_puts(sweep_mode_text[ps->sweep.mode]);
     lcd_gotoxy(0, 6);
-    lcd_puts("Frequency");
-    lcd_gotoxy(0, 4);
     lcd_puts(">");
-    disp_draw_mark_position(0, 4, DOUBLESIZE);
+    disp_draw_mark_position(calc_sweep_mode_focus_pos(ps->menu_pos), 6, DOUBLESIZE);
     break;
   }
   lcd_display();
