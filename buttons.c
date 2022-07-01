@@ -43,22 +43,22 @@ ISR(PCINT1_vect)
   {
     if ((wheel_in & _BV(PIN_WHEEL_B)) == 0)
     {
-      wheel_cnt--;
+      wheel_cnt++;
     }
     else
     {
-      wheel_cnt++;
+      wheel_cnt--;
     }
   }
   else
   {
     if ((wheel_in & _BV(PIN_WHEEL_B)) == 0)
     {
-      wheel_cnt++;
+      wheel_cnt--;
     }
     else
     {
-      wheel_cnt--;
+      wheel_cnt++;
     }
   }
   SEND_EVENT(EV_BUTTON);

@@ -42,7 +42,7 @@ void disp_draw_info(void)
 
   info_ctrl.step = +2;
   info_ctrl.pox_x = 30;
-  info_ctrl.repeate = 2;
+  info_ctrl.repeate = 1;
   /*
     lcd_drawLine(10, ROW_TO_Y(5), 20, ROW_TO_Y(5), WHITE);
     lcd_drawLine(20, ROW_TO_Y(5), 20, ROW_TO_Y(5) - 10, WHITE);
