@@ -90,8 +90,8 @@ void calc_new_duty(uint8_t pos)
     new_value = pwm_settings.duty - decimal_place[pos];
   }
   wheel_cnt = 0;
-  if (new_value > PWM_MAX_PULSE_WIDTH)
-    new_value = PWM_MAX_PULSE_WIDTH;
+  if (new_value > PWM_MAX_DUTY_CYCLE)
+    new_value = PWM_MAX_DUTY_CYCLE;
   if (new_value < 0)
     new_value = 0;
   pwm_settings.duty = new_value;
