@@ -99,11 +99,46 @@ static uint16_t calc_new_duty(uint16_t duty, uint8_t pos)
 
 static pwm_sweep_modes_t next_sweep_mode_mode(pwm_sweep_modes_t mode)
 {
-  if (mode >= SWEEP_MODE_FREQ)
+#warning unimplemented at the moment SWEEP_MODE_FREQ
+  if (wheel_cnt > 0)
   {
-    return SWEEP_MODE_OFF;
+    // next
+    wheel_cnt = 0;
+    if (mode >= SWEEP_MODE_DUTY) // SWEEP_MODE_FREQ)
+    {
+      return SWEEP_MODE_OFF;
+    }
+    return mode + 1;
   }
-  return mode + 1;
+  else
+  {
+    // prev
+    wheel_cnt = 0;
+    if (mode == SWEEP_MODE_OFF)
+    {
+      return SWEEP_MODE_DUTY; // SWEEP_MODE_FREQ;
+    }
+    return mode - 1;
+  }
+}
+
+static void update_pwm_output(void)
+{
+  if (pwm_settings.status & PWM_STATUS_ON)
+  {
+    if (pwm_settings.sweep.mode == SWEEP_MODE_OFF)
+    {
+      pwm_start(pwm_settings.freq, pwm_settings.duty);
+    }
+    if (pwm_settings.sweep.mode == SWEEP_MODE_DUTY)
+    {
+      pwm_start_sweep_duty_cycle(pwm_settings.freq, pwm_settings.sweep.duty_start, pwm_settings.sweep.duty_stop);
+    }
+  }
+  else
+  {
+    pwm_stop();
+  }
 }
 
 void disp_update_pwm_setup(uint8_t button_events)
@@ -118,12 +153,12 @@ void disp_update_pwm_setup(uint8_t button_events)
     if (pwm_settings.status & PWM_STATUS_ON)
     {
       pwm_settings.status &= ~PWM_STATUS_ON;
-      pwm_stop();
+      update_pwm_output();
     }
     else
     {
       pwm_settings.status |= PWM_STATUS_ON;
-      pwm_start(pwm_settings.freq, pwm_settings.duty);
+      update_pwm_output();
     }
   }
 
@@ -139,7 +174,7 @@ void disp_update_pwm_setup(uint8_t button_events)
       else
       {
         calc_new_frequency(pwm_settings.menu_pos);
-        pwm_start(pwm_settings.freq, pwm_settings.duty);
+        update_pwm_output();
       }
     }
     if (button_events & EV_BUTTON_BTN_WHEEL)
@@ -157,7 +192,7 @@ void disp_update_pwm_setup(uint8_t button_events)
       else
       {
         pwm_settings.duty = calc_new_duty(pwm_settings.duty, pwm_settings.menu_pos);
-        pwm_start(pwm_settings.freq, pwm_settings.duty);
+        update_pwm_output();
       }
     }
     if (button_events & EV_BUTTON_BTN_WHEEL)
@@ -175,6 +210,7 @@ void disp_update_pwm_setup(uint8_t button_events)
       else
       {
         pwm_settings.sweep.mode = next_sweep_mode_mode(pwm_settings.sweep.mode);
+        update_pwm_output();
       }
     }
     if (button_events & EV_BUTTON_BTN_WHEEL)
@@ -200,7 +236,7 @@ void disp_update_pwm_setup(uint8_t button_events)
       else
       {
         pwm_settings.sweep.duty_start = calc_new_duty(pwm_settings.sweep.duty_start, pwm_settings.menu_pos);
-        // pwm_start(pwm_settings.freq, pwm_settings.duty);
+        update_pwm_output();
       }
     }
     if (button_events & EV_BUTTON_BTN_WHEEL)
@@ -218,7 +254,7 @@ void disp_update_pwm_setup(uint8_t button_events)
       else
       {
         pwm_settings.sweep.duty_stop = calc_new_duty(pwm_settings.sweep.duty_stop, pwm_settings.menu_pos);
-        // pwm_start(pwm_settings.freq, pwm_settings.duty);
+        update_pwm_output();
       }
     }
     if (button_events & EV_BUTTON_BTN_WHEEL)

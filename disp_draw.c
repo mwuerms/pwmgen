@@ -353,9 +353,8 @@ static uint8_t calc_sweep_mode_focus_pos(uint8_t pos)
   return 2;
 }
 
-//"from:100.0%-to:100.0%"
 static void sweep_mode_duty_status_to_line(char *start_str, char *stop_str)
-{
+{ //                    "from:100.0%-to:100.0%"
   stringcopyn(&line[0], "from:   .0%-to:   .0%", LINE_SIZE);
   stringcopyn(&line[5], start_str, LINE_SIZE - 5);
   line[10] = '%';

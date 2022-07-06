@@ -81,6 +81,7 @@ void pwm_start(uint16_t set_freq, uint16_t set_duty_cycle)
     uint16_t prescaler = 1;
     uint8_t cs_value = _BV(CS12);
     TIMSK1 = 0; // disable all interrupts
+
     // TOP = f_{clkI/O}(N*f_{pwm}-1
     // check set_duty_cycle
     if (set_duty_cycle > PWM_MAX_DUTY_CYCLE)
