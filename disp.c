@@ -78,23 +78,23 @@ void calc_new_frequency(uint8_t pos)
   pwm_settings.freq = new_value;
 }
 
-void calc_new_duty(uint8_t pos)
+static uint16_t calc_new_duty(uint16_t duty, uint8_t pos)
 {
   int16_t new_value;
   if (wheel_cnt > 0)
   {
-    new_value = pwm_settings.duty + decimal_place[pos];
+    new_value = duty + decimal_place[pos];
   }
   else
   {
-    new_value = pwm_settings.duty - decimal_place[pos];
+    new_value = duty - decimal_place[pos];
   }
   wheel_cnt = 0;
   if (new_value > PWM_MAX_DUTY_CYCLE)
     new_value = PWM_MAX_DUTY_CYCLE;
   if (new_value < 0)
     new_value = 0;
-  pwm_settings.duty = new_value;
+  return new_value;
 }
 
 static pwm_sweep_modes_t next_sweep_mode_mode(pwm_sweep_modes_t mode)
@@ -134,7 +134,7 @@ void disp_update_pwm_setup(uint8_t button_events)
     {
       if (pwm_settings.menu_pos == MENU_POS)
       {
-        switch_menu(MENU_ITEM_DUTY, MENU_ITEM_SWEEP_MODE);
+        switch_menu(MENU_ITEM_DUTY, MENU_ITEM_SWEEP_DUTY_STOP);
       }
       else
       {
@@ -156,7 +156,7 @@ void disp_update_pwm_setup(uint8_t button_events)
       }
       else
       {
-        calc_new_duty(pwm_settings.menu_pos);
+        pwm_settings.duty = calc_new_duty(pwm_settings.duty, pwm_settings.menu_pos);
         pwm_start(pwm_settings.freq, pwm_settings.duty);
       }
     }
@@ -170,7 +170,7 @@ void disp_update_pwm_setup(uint8_t button_events)
     {
       if (pwm_settings.menu_pos == MENU_POS)
       {
-        switch_menu(MENU_ITEM_FREQ, MENU_ITEM_DUTY);
+        switch_menu(MENU_ITEM_SWEEP_DUTY_START, MENU_ITEM_DUTY);
       }
       else
       {
@@ -188,6 +188,42 @@ void disp_update_pwm_setup(uint8_t button_events)
       {
         pwm_settings.menu_pos = 0;
       }
+    }
+    break;
+  case MENU_ITEM_SWEEP_DUTY_START:
+    if (button_events & EV_BUTTON_WHEEL)
+    {
+      if (pwm_settings.menu_pos == MENU_POS)
+      {
+        switch_menu(MENU_ITEM_SWEEP_DUTY_STOP, MENU_ITEM_SWEEP_MODE);
+      }
+      else
+      {
+        pwm_settings.sweep.duty_start = calc_new_duty(pwm_settings.sweep.duty_start, pwm_settings.menu_pos);
+        // pwm_start(pwm_settings.freq, pwm_settings.duty);
+      }
+    }
+    if (button_events & EV_BUTTON_BTN_WHEEL)
+    {
+      pwm_settings.menu_pos = next_position(pwm_settings.menu_pos, duty_next_positions);
+    }
+    break;
+  case MENU_ITEM_SWEEP_DUTY_STOP:
+    if (button_events & EV_BUTTON_WHEEL)
+    {
+      if (pwm_settings.menu_pos == MENU_POS)
+      {
+        switch_menu(MENU_ITEM_FREQ, MENU_ITEM_SWEEP_DUTY_START);
+      }
+      else
+      {
+        pwm_settings.sweep.duty_stop = calc_new_duty(pwm_settings.sweep.duty_stop, pwm_settings.menu_pos);
+        // pwm_start(pwm_settings.freq, pwm_settings.duty);
+      }
+    }
+    if (button_events & EV_BUTTON_BTN_WHEEL)
+    {
+      pwm_settings.menu_pos = next_position(pwm_settings.menu_pos, duty_next_positions);
     }
     break;
   }

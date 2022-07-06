@@ -164,6 +164,8 @@ static const char sweep_mode_text[][5] = {"OFF ", "DUTY", "FREQ"};
 static char line[LINE_SIZE + 1]; // +1: '\0' at the end
 static char freq_str[8];
 static char duty_str[8];
+static char sweep_duty_start_str[8];
+static char sweep_duty_stop_str[8];
 
 void stringcopyn(char *to, char *from, uint8_t max_size)
 {
@@ -256,33 +258,33 @@ static char *int8_t_to_str(char *dest, int8_t i8, uint8_t nb_digits)
   return dest;
 }
 
-static void convert_freq_to_str(uint16_t freq)
+static void convert_freq_to_str(char *str, uint16_t freq)
 {
   if (freq >= 10000)
   {
     // special case
-    stringcopyn(freq_str, "10000", 6);
+    stringcopyn(str, "10000", 6);
     return;
   }
-  uint16_t_to_str(freq_str, freq, 4);
+  uint16_t_to_str(str, freq, 4);
 }
 
-static void convert_duty_to_str(uint16_t duty)
+static void convert_duty_to_str(char *str, uint16_t duty)
 {
   if (duty >= 1000)
   {
     // special case
-    stringcopyn(duty_str, "100.0", 6);
+    stringcopyn(str, "100.0", 6);
     return;
   }
-  uint16_t_to_str(duty_str, duty, 4);
+  uint16_t_to_str(str, duty, 4);
   // add "." to get format "xxx.x", smallest = "  0.0"
-  duty_str[5] = '\0';
-  duty_str[4] = duty_str[3];
-  duty_str[3] = '.';
+  str[5] = '\0';
+  str[4] = str[3];
+  str[3] = '.';
   if (duty < 10)
   {
-    duty_str[2] = '0';
+    str[2] = '0';
   }
 }
 
@@ -351,12 +353,24 @@ static uint8_t calc_sweep_mode_focus_pos(uint8_t pos)
   return 2;
 }
 
+//"from:100.0%-to:100.0%"
+static void sweep_mode_duty_status_to_line(char *start_str, char *stop_str)
+{
+  stringcopyn(&line[0], "from:   .0%-to:   .0%", LINE_SIZE);
+  stringcopyn(&line[5], start_str, LINE_SIZE - 5);
+  line[10] = '%';
+  stringcopyn(&line[15], stop_str, LINE_SIZE - 15);
+  line[20] = '%';
+}
+
 void disp_draw_pwm_setup(pwm_settings_t *ps)
 {
   // preparation convert numbers into strings
   lcd_clear_buffer();
-  convert_freq_to_str(ps->freq); // result in char freq_str[]
-  convert_duty_to_str(ps->duty); // result in char duty_str[]
+  convert_freq_to_str(freq_str, ps->freq);
+  convert_duty_to_str(duty_str, ps->duty);
+  convert_duty_to_str(sweep_duty_start_str, ps->sweep.duty_start);
+  convert_duty_to_str(sweep_duty_stop_str, ps->sweep.duty_stop);
 
   // 1st: status line
   lcd_charMode(DOUBLESIZE);
@@ -373,6 +387,13 @@ void disp_draw_pwm_setup(pwm_settings_t *ps)
   lcd_puts("Sweep mode: ");
   lcd_gotoxy(12, 2);
   lcd_puts(sweep_mode_text[ps->sweep.mode]);
+  // show if SWEEP_MODE_DUTY is active
+  if (ps->sweep.mode == SWEEP_MODE_DUTY)
+  {
+    lcd_gotoxy(0, 3);
+    sweep_mode_duty_status_to_line(sweep_duty_start_str, sweep_duty_stop_str);
+    lcd_puts(line);
+  }
 
   // 2nd: settings
   lcd_charMode(DOUBLESIZE);
@@ -399,15 +420,36 @@ void disp_draw_pwm_setup(pwm_settings_t *ps)
     disp_draw_mark_position(calc_duty_focus_pos(ps->menu_pos), 6, DOUBLESIZE);
     break;
   case MENU_ITEM_SWEEP_MODE:
-  default:
     lcd_gotoxy(0, 4);
     lcd_puts("Sweep Mode");
-    lcd_gotoxy(3, 6);
-    lcd_puts(sweep_mode_text[ps->sweep.mode]);
     lcd_gotoxy(0, 6);
-    lcd_puts(">");
+    stringcopyn(&line[0], ">   ", 8);
+    stringcopyn(&line[2], sweep_mode_text[ps->sweep.mode], 8);
+    lcd_puts(line);
     disp_draw_mark_position(calc_sweep_mode_focus_pos(ps->menu_pos), 6, DOUBLESIZE);
     break;
+  case MENU_ITEM_SWEEP_DUTY_START:
+    lcd_gotoxy(0, 4);
+    lcd_puts("Swp D Start");
+    lcd_gotoxy(0, 6);
+    duty_to_line(sweep_duty_start_str);
+    lcd_puts(line);
+    lcd_gotoxy(0, 6);
+    lcd_puts(">");
+    disp_draw_mark_position(calc_duty_focus_pos(ps->menu_pos), 6, DOUBLESIZE);
+    break;
+  case MENU_ITEM_SWEEP_DUTY_STOP:
+    lcd_gotoxy(0, 4);
+    lcd_puts("Swp D Stop");
+    lcd_gotoxy(0, 6);
+    duty_to_line(sweep_duty_stop_str);
+    lcd_puts(line);
+    lcd_gotoxy(0, 6);
+    lcd_puts(">");
+    disp_draw_mark_position(calc_duty_focus_pos(ps->menu_pos), 6, DOUBLESIZE);
+    break;
+
+  default:;
   }
   lcd_display();
 }
